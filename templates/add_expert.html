@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Expert Farmer | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:760px;margin:0 auto}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+    h1{color:#0d3d1f;font-size:1.25rem}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .field{display:flex;flex-direction:column;gap:.35rem}
+    .full{grid-column:1 / -1}
+    label{font-size:.9rem;color:#2d4733}
+    input,select,textarea{padding:.6rem .7rem;border:1px solid #cfe3d4;border-radius:8px;font:inherit}
+    textarea{min-height:80px;resize:vertical}
+    .actions{display:flex;gap:.6rem;align-items:center;margin-top:.8rem}
+    .btn{background:#1a6b35;color:#fff;border:0;padding:.58rem .9rem;border-radius:8px;cursor:pointer}
+    .btn:hover{background:#14542b}
+    .errbox{margin-bottom:.8rem;background:#fff3f3;border:1px solid #f3c2c2;color:#8b1c1c;padding:.7rem .8rem;border-radius:8px}
+    .errbox ul{margin-left:1rem}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+        <h1>Add Expert Farmer</h1>
+      </div>
+    </div>
+
+    <div class="card">
+      {% if errors %}
+      <div class="errbox">
+        <strong>Please fix the following:</strong>
+        <ul>
+          {% for e in errors %}
+          <li>{{ e }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <form method="POST">
+        <div class="grid">
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" value="{{ request.form.get('name', '') }}" required/>
+          </div>
+
+          <div class="field">
+            <label for="crop_speciality">Crop Speciality</label>
+            <select id="crop_speciality" name="crop_speciality" required>
+              <option value="">Select crop</option>
+              {% for c in crop_names %}
+              <option value="{{ c }}" {% if request.form.get('crop_speciality') == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="experience_years">Experience Years</label>
+            <input id="experience_years" name="experience_years" type="number" min="0" max="60" value="{{ request.form.get('experience_years', '') }}" required/>
+          </div>
+
+          <div class="field">
+            <label for="rating">Rating (0 to 5)</label>
+            <input id="rating" name="rating" type="number" min="0" max="5" step="0.1" value="{{ request.form.get('rating', '4.5') }}" required/>
+          </div>
+
+          <div class="field">
+            <label for="district">District</label>
+            <input id="district" name="district" value="{{ request.form.get('district', '') }}" required/>
+          </div>
+
+          <div class="field">
+            <label for="state">State</label>
+            <input id="state" name="state" value="{{ request.form.get('state', '') }}" required/>
+          </div>
+
+          <div class="field full">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" value="{{ request.form.get('phone', '') }}" required/>
+          </div>
+
+          <div class="field full">
+            <label for="available_slots">Available Slots (comma separated)</label>
+            <textarea id="available_slots" name="available_slots" placeholder="Mon 10:00, Wed 16:00, Sat 11:30" required>{{ request.form.get('available_slots', '') }}</textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Save Expert Farmer</button>
+          <a href="{{ url_for('admin_dashboard') }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

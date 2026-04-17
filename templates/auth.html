@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ page_title }} | AgriMindX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --g-deep:#0d3d1f;--g-mid:#1a6b35;--g-bright:#2dbb5d;--g-light:#c6f6d5;
+      --bg:#f4f7f0;--white:#fff;--text:#1a2a1d;--muted:#5a7060;--border:#d6e8da;
+      --shadow:0 18px 60px rgba(13,61,31,.12);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;font-family:'DM Sans',sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(45,187,93,.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(232,184,75,.12), transparent 25%),
+        var(--bg);
+      display:grid;place-items:center;padding:1.25rem;
+    }
+    .shell{width:min(1040px,100%);display:grid;grid-template-columns:1.05fr .95fr;background:var(--white);border:1px solid var(--border);border-radius:28px;overflow:hidden;box-shadow:var(--shadow)}
+    .hero{
+      padding:2.3rem;background:linear-gradient(155deg,var(--g-deep),#1c5e35 60%,#287845);
+      color:#fff;position:relative;overflow:hidden;
+    }
+    .hero::before,.hero::after{content:'';position:absolute;border-radius:50%;pointer-events:none}
+    .hero::before{width:240px;height:240px;right:-80px;top:-80px;background:rgba(45,187,93,.15)}
+    .hero::after{width:180px;height:180px;left:-60px;bottom:-60px;background:rgba(232,184,75,.12)}
+    .brand{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-bottom:2.4rem;position:relative;z-index:1}
+    .brand span{color:var(--g-light)}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;margin-bottom:1rem;position:relative;z-index:1}
+    .hero p{max-width:34rem;line-height:1.7;color:rgba(255,255,255,.76);margin-bottom:1.5rem;position:relative;z-index:1}
+    .hero ul{list-style:none;display:grid;gap:.8rem;position:relative;z-index:1}
+    .hero li{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.85rem 1rem;color:rgba(255,255,255,.9)}
+    .panel{padding:2.3rem}
+    .panel h2{font-family:'Playfair Display',serif;font-size:2rem;color:var(--g-deep);margin-bottom:.45rem}
+    .panel .sub{color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+    .hint{margin-top:.45rem;font-size:.82rem;color:var(--muted);line-height:1.5}
+    .flash{border-radius:14px;padding:.9rem 1rem;margin-bottom:1rem;font-size:.92rem;line-height:1.5}
+    .flash.success{background:#ecfdf3;border:1px solid #b7ebc9;color:#166534}
+    .flash.auth{background:#fff7e6;border:1px solid #f7d28b;color:#8a5b00}
+    label{display:block;font-size:.8rem;font-weight:700;color:var(--g-mid);margin:1rem 0 .4rem}
+    input{width:100%;padding:.78rem .95rem;border:1.5px solid var(--border);border-radius:12px;font-size:.98rem;font-family:'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s}
+    input:focus{outline:none;border-color:var(--g-bright);box-shadow:0 0 0 3px rgba(45,187,93,.14)}
+    .btn{width:100%;margin-top:1.4rem;border:none;border-radius:14px;padding:.95rem 1rem;background:linear-gradient(135deg,var(--g-mid),var(--g-deep));color:#fff;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(26,107,53,.2)}
+    .btn:hover{transform:translateY(-1px)}
+    .errors{margin-bottom:1rem;padding:1rem;border-radius:14px;background:#fff5f5;border:1px solid #fc8181;color:#c53030}
+    .errors ul{padding-left:1.1rem;margin-top:.45rem}
+    .foot{margin-top:1rem;font-size:.92rem;color:var(--muted);text-align:center}
+    .foot a{color:var(--g-mid);font-weight:700;text-decoration:none}
+    .foot a:hover{text-decoration:underline}
+    .back{display:inline-flex;align-items:center;gap:.35rem;margin-bottom:1rem;color:var(--g-mid);text-decoration:none;font-weight:700;font-size:.92rem}
+    .back:hover{text-decoration:underline}
+    @media(max-width:900px){.shell{grid-template-columns:1fr}.hero{display:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="brand">Agri<span>MindX</span></div>
+      {% if mode == 'register' %}
+      <h1>Create an account to unlock crop analysis.</h1>
+      <p>Browsing stays public, but recommendations, SHAP explanations, and personal history are reserved for account holders.</p>
+      {% else %}
+      <h1>Welcome back.</h1>
+      <p>Log in to analyze your farm data, generate crop recommendations, and review your saved history.</p>
+      {% endif %}
+      <ul>
+        <li>Public browsing for everyone</li>
+        <li>Protected prediction workflows</li>
+        <li>Private per-account history</li>
+      </ul>
+    </section>
+    <section class="panel">
+      <a class="back" href="/">← Back to site</a>
+      <h2>{{ page_title }}</h2>
+      <div class="sub">{{ 'Create a new account to start using crop analysis.' if mode == 'register' else 'Sign in to continue where you left off.' }}</div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      {% if errors %}
+      <div class="errors">
+        <strong>Please fix these issues:</strong>
+        <ul>
+          {% for error in errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <form method="POST">
+        <input type="hidden" name="next" value="{{ next_url }}"/>
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" required />
+
+        {% if mode == 'register' %}
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+        {% endif %}
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" {% if mode == 'register' %}minlength="6" title="Use at least 6 characters"{% endif %} required />
+
+        {% if mode == 'register' %}
+        <label for="confirm_password">Confirm password</label>
+        <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" minlength="6" title="Use at least 6 characters" required />
+        {% endif %}
+
+        <button class="btn" type="submit">{{ 'Create account' if mode == 'register' else 'Log in' }}</button>
+      </form>
+
+      <div class="foot">
+        {% if mode == 'register' %}
+        Already have an account? <a href="{{ url_for('login', next=next_url) }}">Log in</a>
+        {% else %}
+        Need an account? <a href="{{ url_for('register', next=next_url) }}">Create account</a>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</body>
+</html>

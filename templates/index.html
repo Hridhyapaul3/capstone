@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriMindX – Smart Crop Recommendation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --g-deep:    #0d3d1f;
+      --g-mid:     #1a6b35;
+      --g-bright:  #2dbb5d;
+      --g-light:   #c6f6d5;
+      --gold:      #e8b84b;
+      --gold-bg:   #fdf6e0;
+      --soil:      #7a4f2e;
+      --bg:        #f4f7f0;
+      --white:     #ffffff;
+      --text:      #1a2a1d;
+      --muted:     #5a7060;
+      --border:    #d6e8da;
+      --shadow:    0 8px 40px rgba(13,61,31,.09);
+      --r:         18px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.9rem 2.5rem;
+      background:rgba(244,247,240,.94);backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .logo{
+      font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;
+      color:var(--g-deep);text-decoration:none;
+    }
+    .logo span{color:var(--g-bright);}
+    .nav-links{display:flex;gap:1.8rem;list-style:none;}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:500;transition:color .2s;}
+    .nav-links a:hover{color:var(--g-mid);}
+    .nav-cta{
+      background:var(--g-mid);color:#fff;border:none;border-radius:999px;
+      padding:.5rem 1.3rem;font-size:.88rem;font-weight:600;
+      font-family:'DM Sans',sans-serif;cursor:pointer;
+      transition:background .2s,transform .15s;
+    }
+    .nav-cta:hover{background:var(--g-deep);transform:translateY(-1px);}
+    .nav-auth{display:flex;align-items:center;gap:.7rem;}
+    .nav-link-btn{
+      color:var(--g-mid);text-decoration:none;font-size:.88rem;font-weight:600;
+      padding:.48rem .95rem;border-radius:999px;border:1px solid transparent;
+    }
+    .nav-link-btn:hover{border-color:var(--border);background:#fff;}
+    .nav-user{font-size:.84rem;color:var(--muted);padding:.42rem .8rem;border-radius:999px;background:#fff;border:1px solid var(--border);}
+
+    .flash-stack{max-width:1060px;margin:6.1rem auto 0;padding:0 2.5rem;display:grid;gap:.7rem;}
+    .flash{
+      border-radius:14px;padding:.9rem 1rem;border:1px solid transparent;
+      font-size:.9rem;line-height:1.45;
+    }
+    .flash.success{background:#ecfdf3;border-color:#b7ebc9;color:#166534;}
+    .flash.auth{background:#fff7e6;border-color:#f7d28b;color:#8a5b00;}
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero{
+      min-height:100vh;
+      display:grid;grid-template-columns:1fr 1fr;
+      align-items:center;gap:3rem;
+      padding:7rem 2.5rem 4rem;
+      position:relative;overflow:hidden;
+    }
+    .hero-blob1{
+      position:absolute;top:-100px;right:-80px;
+      width:520px;height:520px;border-radius:50%;
+      background:radial-gradient(circle,rgba(45,187,93,.13) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-blob2{
+      position:absolute;bottom:-60px;left:-60px;
+      width:360px;height:360px;border-radius:50%;
+      background:radial-gradient(circle,rgba(232,184,75,.10) 0%,transparent 70%);
+      pointer-events:none;
+    }
+
+    .hero-text{position:relative;z-index:1;}
+    .pill{
+      display:inline-flex;align-items:center;gap:.45rem;
+      background:var(--g-light);color:var(--g-deep);
+      border-radius:999px;padding:.3rem .9rem;
+      font-size:.75rem;font-weight:700;letter-spacing:.04em;
+      text-transform:uppercase;margin-bottom:1.3rem;
+      animation:fadeUp .5s ease both;
+    }
+    .hero h1{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2.8rem,5vw,4.4rem);font-weight:900;
+      line-height:1.08;color:var(--g-deep);
+      margin-bottom:1.1rem;
+      animation:fadeUp .5s .1s ease both;
+    }
+    .hero h1 em{
+      font-style:normal;color:var(--g-bright);
+      position:relative;
+    }
+    .hero h1 em::after{
+      content:'';position:absolute;bottom:-3px;left:0;right:0;height:3px;
+      background:var(--g-bright);border-radius:999px;
+    }
+    .hero-sub{
+      font-size:1.05rem;color:var(--muted);line-height:1.75;max-width:460px;
+      margin-bottom:2.2rem;animation:fadeUp .5s .2s ease both;
+    }
+    .hero-btns{display:flex;gap:.9rem;flex-wrap:wrap;animation:fadeUp .5s .3s ease both;}
+    .btn-p{
+      background:linear-gradient(135deg,var(--g-mid),var(--g-deep));
+      color:#fff;border:none;border-radius:999px;
+      padding:.85rem 1.9rem;font-size:.95rem;font-weight:600;
+      font-family:'DM Sans',sans-serif;cursor:pointer;
+      text-decoration:none;display:flex;align-items:center;gap:.4rem;
+      transition:transform .2s,box-shadow .2s;
+      box-shadow:0 4px 20px rgba(26,107,53,.28);
+    }
+    .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,107,53,.38);}
+    .btn-o{
+      background:transparent;color:var(--g-mid);border:2px solid var(--g-mid);
+      border-radius:999px;padding:.85rem 1.9rem;font-size:.95rem;font-weight:600;
+      font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;
+      transition:all .2s;
+    }
+    .btn-o:hover{background:var(--g-mid);color:#fff;}
+    .hero-stats{
+      display:flex;gap:2.5rem;margin-top:2.8rem;
+      animation:fadeUp .5s .4s ease both;
+    }
+    .stat .v{
+      font-family:'Playfair Display',serif;
+      font-size:1.9rem;font-weight:700;color:var(--g-deep);
+    }
+    .stat .l{font-size:.75rem;color:var(--muted);margin-top:.1rem;}
+
+    /* Hero image */
+    .hero-image-card{
+      position:relative;z-index:1;
+      animation:fadeUp .5s .15s ease both;
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:0 24px 80px rgba(13,61,31,.28);
+      min-height:420px;
+    }
+    .hero-image-card img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+
+    /* ── FEATURES ────────────────────────────────────── */
+    .sec{padding:5rem 2.5rem;}
+    .sec-tag{
+      text-align:center;font-size:.72rem;font-weight:700;
+      letter-spacing:.15em;text-transform:uppercase;
+      color:var(--g-mid);margin-bottom:.6rem;
+    }
+    .sec-title{
+      text-align:center;font-family:'Playfair Display',serif;
+      font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;
+      color:var(--g-deep);margin-bottom:.9rem;
+    }
+    .sec-sub{
+      text-align:center;color:var(--muted);font-size:.95rem;
+      max-width:500px;margin:0 auto 3.5rem;line-height:1.7;
+    }
+    .feat-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:1.4rem;max-width:1080px;margin:0 auto;
+    }
+    .feat{
+      background:var(--white);border-radius:var(--r);
+      padding:1.8rem;border:1px solid var(--border);
+      transition:transform .25s,box-shadow .25s;
+      position:relative;overflow:hidden;
+    }
+    .feat::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--g-bright),var(--gold));
+      transform:scaleX(0);transform-origin:left;transition:transform .3s;
+    }
+    .feat:hover{transform:translateY(-5px);box-shadow:var(--shadow);}
+    .feat:hover::after{transform:scaleX(1);}
+    .feat-ico{
+      width:50px;height:50px;border-radius:13px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;background:var(--g-light);margin-bottom:1.1rem;
+    }
+    .feat-t{font-weight:700;color:var(--g-deep);margin-bottom:.45rem;}
+    .feat-d{font-size:.87rem;color:var(--muted);line-height:1.6;}
+
+    /* ── PREDICT ─────────────────────────────────────── */
+    #predict{background:var(--white);}
+    .pred-wrap{
+      max-width:1060px;margin:0 auto;
+      display:grid;grid-template-columns:1fr 1.3fr;
+      gap:3rem;align-items:start;
+    }
+    .pred-info h2{
+      font-family:'Playfair Display',serif;
+      font-size:2.1rem;font-weight:900;color:var(--g-deep);
+      margin-bottom:.9rem;line-height:1.2;
+    }
+    .pred-info p{color:var(--muted);line-height:1.7;margin-bottom:1.6rem;font-size:.95rem;}
+    .gate-banner{
+      background:linear-gradient(135deg,#fdf6e0,#fffaf0);
+      border:1px solid rgba(232,184,75,.28);color:var(--soil);
+      border-radius:16px;padding:1rem 1.1rem;margin-bottom:1.2rem;
+    }
+    .gate-banner strong{display:block;color:#62401f;margin-bottom:.35rem;}
+    .gate-banner a{color:var(--g-deep);font-weight:700;text-decoration:none;}
+    .gate-banner a:hover{text-decoration:underline;}
+
+    .presets-lbl{font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.45rem;}
+    .presets{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.4rem;}
+    .pre-btn{
+      border:1.5px solid var(--border);background:var(--bg);
+      border-radius:999px;padding:.3rem .95rem;
+      font-size:.8rem;color:var(--text);cursor:pointer;
+      font-family:'DM Sans',sans-serif;font-weight:500;
+      text-decoration:none;transition:all .2s;
+    }
+    .pre-btn:hover{border-color:var(--g-bright);color:var(--g-mid);background:var(--g-light);}
+    .pre-btn.locked{opacity:.6;cursor:not-allowed;pointer-events:none;}
+
+    .tips{display:flex;flex-direction:column;gap:.65rem;}
+    .tip{
+      display:flex;align-items:flex-start;gap:.65rem;
+      background:var(--bg);border-radius:12px;padding:.75rem .95rem;
+    }
+    .tip-i{font-size:1rem;flex-shrink:0;}
+    .tip-t{font-size:.8rem;color:var(--muted);line-height:1.55;}
+    .tip-t strong{color:var(--text);font-weight:600;}
+
+    /* Form card */
+    .fcard{
+      background:var(--bg);border-radius:24px;
+      padding:2.4rem;border:1px solid var(--border);
+    }
+    .fcard-hd{font-size:1.05rem;font-weight:700;color:var(--g-deep);margin-bottom:.3rem;}
+    .fcard-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.6rem;}
+    .auth-lock{
+      margin-bottom:1rem;padding:.85rem 1rem;border-radius:14px;
+      background:#fff7e6;border:1px solid rgba(232,184,75,.28);color:#8a5b00;
+      line-height:1.55;
+    }
+    .auth-lock strong{display:block;color:#6a430e;margin-bottom:.2rem;}
+
+    .fsec-lbl{
+      font-size:.68rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.1em;color:var(--g-mid);margin:1.4rem 0 .75rem;
+    }
+    .igrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+    .igrp{display:flex;flex-direction:column;gap:.3rem;}
+    .igrp label{
+      font-size:.77rem;font-weight:600;color:var(--muted);
+      display:flex;justify-content:space-between;
+    }
+    .rng{font-weight:400;color:#9ab8a0;}
+    .igrp input{
+      padding:.6rem .85rem;
+      border:1.5px solid var(--border);border-radius:10px;
+      background:var(--white);font-size:.93rem;
+      font-family:'DM Sans',sans-serif;color:var(--text);
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .igrp input:focus{
+      outline:none;border-color:var(--g-bright);
+      box-shadow:0 0 0 3px rgba(45,187,93,.14);
+    }
+
+    .err-box{
+      background:#fff5f5;border:1.5px solid #fc8181;
+      border-radius:12px;padding:.9rem 1.1rem;
+      margin-bottom:1.1rem;display:none;
+    }
+    .err-box.on{display:block;}
+    .err-box ul{padding-left:1.2rem;}
+    .err-box li{font-size:.83rem;color:#c53030;margin:2px 0;}
+
+    .sub-btn{
+      width:100%;padding:.95rem;margin-top:1.4rem;
+      background:linear-gradient(135deg,var(--g-mid),var(--g-deep));
+      color:#fff;border:none;border-radius:14px;
+      font-size:.97rem;font-weight:700;font-family:'DM Sans',sans-serif;
+      cursor:pointer;display:flex;align-items:center;
+      justify-content:center;gap:.5rem;
+      transition:transform .2s,box-shadow .2s;
+      box-shadow:0 4px 20px rgba(26,107,53,.22);
+    }
+    .sub-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,107,53,.32);}
+    .sub-btn:active{transform:scale(.98);}
+    fieldset.auth-disabled{border:0;padding:0;margin:0;}
+    fieldset.auth-disabled:disabled{opacity:.7;}
+
+    /* ── RESULT ──────────────────────────────────────── */
+    .res-wrap{
+      max-width:1060px;margin:3rem auto 0;
+      display:none;
+    }
+    .res-wrap.on{display:block;}
+
+    .res-hero{
+      background:linear-gradient(135deg,var(--g-deep) 0%,#1c5e35 60%,#287845 100%);
+      border-radius:24px;padding:2.8rem 3rem;color:#fff;
+      display:grid;grid-template-columns:1fr auto;gap:2rem;
+      align-items:center;margin-bottom:1.8rem;
+      position:relative;overflow:hidden;
+    }
+    .res-hero::before{
+      content:'';position:absolute;top:-60px;right:160px;
+      width:280px;height:280px;border-radius:50%;
+      background:rgba(45,187,93,.14);pointer-events:none;
+    }
+    .rh-tag{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin-bottom:.5rem;}
+    .rh-name{
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2.4rem,4.5vw,3.8rem);font-weight:900;line-height:1;
+      margin-bottom:.5rem;
+    }
+    .rh-note{font-size:.95rem;opacity:.75;}
+    .rh-ring-wrap{text-align:center;}
+    .rh-ring{
+      width:108px;height:108px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    .rh-ring::before{
+      content:'';position:absolute;inset:9px;
+      background:var(--g-deep);border-radius:50%;
+    }
+    .rh-ring-val{
+      position:relative;z-index:1;
+      font-family:'Playfair Display',serif;
+      font-size:1.45rem;font-weight:700;color:#fff;
+    }
+    .rh-ring-lbl{font-size:.7rem;opacity:.65;margin-top:.35rem;}
+
+    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+    .rcard{
+      background:var(--white);border-radius:var(--r);
+      padding:1.7rem;border:1px solid var(--border);
+    }
+    .rcard h4{
+      font-size:.72rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:.1em;color:var(--g-mid);margin-bottom:1.1rem;
+    }
+
+    /* SHAP */
+    .shap-row{
+      display:flex;align-items:center;gap:.75rem;
+      padding:.6rem 0;border-bottom:1px solid var(--border);
+    }
+    .shap-row:last-child{border-bottom:none;}
+    .shap-nm{flex:1;font-size:.86rem;color:var(--text);}
+    .shap-bw{width:72px;height:5px;background:var(--bg);border-radius:999px;overflow:hidden;}
+    .shap-b{height:100%;border-radius:999px;}
+    .shap-b.pos{background:var(--g-bright);}
+    .shap-b.neg{background:#e05c3a;}
+    .shap-v{
+      font-size:.79rem;font-weight:700;border-radius:999px;
+      padding:2px 8px;
+    }
+    .shap-v.pos{background:#d4f5e3;color:#1a6b35;}
+    .shap-v.neg{background:#fde8e4;color:#c04020;}
+
+    /* Alternatives */
+    .alt-list{display:flex;flex-direction:column;gap:.7rem;}
+    .alt-row{display:flex;align-items:center;gap:.9rem;}
+    .alt-nm{font-size:.88rem;font-weight:600;color:var(--text);min-width:95px;}
+    .alt-bw{flex:1;height:7px;background:var(--bg);border-radius:999px;overflow:hidden;}
+    .alt-b{
+      height:100%;border-radius:999px;
+      background:linear-gradient(90deg,var(--g-bright),var(--g-mid));
+    }
+    .alt-pct{font-size:.83rem;font-weight:700;color:var(--g-mid);min-width:40px;text-align:right;}
+
+    /* Input summary */
+    .isumm{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;}
+    .is-it{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--bg);border-radius:8px;padding:.45rem .7rem;
+    }
+    .is-l{font-size:.76rem;color:var(--muted);}
+    .is-v{font-size:.8rem;font-weight:700;color:var(--g-deep);}
+
+    /* ── CROPS ───────────────────────────────────────── */
+    .crops-sec{background:var(--g-deep);padding:5rem 2.5rem;}
+    .crops-sec .sec-tag{color:var(--g-light);}
+    .crops-sec .sec-title{color:#fff;}
+    .crops-sec .sec-sub{color:rgba(255,255,255,.55);}
+    .crops-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+      gap:.9rem;max-width:1080px;margin:0 auto;
+    }
+    .crop-chip{
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;padding:1.1rem .75rem;
+      text-align:center;cursor:pointer;transition:all .22s;
+    }
+    .crop-chip:hover{
+      background:rgba(45,187,93,.16);
+      border-color:var(--g-bright);transform:translateY(-4px);
+    }
+    .cc-e{font-size:1.8rem;display:block;margin-bottom:.45rem;}
+    .cc-n{font-size:.79rem;color:rgba(255,255,255,.8);font-weight:500;}
+
+    /* ── STEPS ───────────────────────────────────────── */
+    .steps-wrap{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:2rem;max-width:880px;margin:0 auto;position:relative;
+    }
+    .steps-wrap::before{
+      content:'';position:absolute;top:31px;left:50px;right:50px;height:2px;
+      background:linear-gradient(90deg,var(--g-light),var(--g-bright),var(--g-light));
+      z-index:0;
+    }
+    .step{text-align:center;position:relative;z-index:1;}
+    .step-n{
+      width:62px;height:62px;border-radius:50%;margin:0 auto 1.1rem;
+      background:linear-gradient(135deg,var(--g-mid),var(--g-deep));
+      color:#fff;font-family:'Playfair Display',serif;
+      font-size:1.35rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 18px rgba(26,107,53,.28);
+    }
+    .step-t{font-weight:700;color:var(--g-deep);margin-bottom:.4rem;}
+    .step-d{font-size:.85rem;color:var(--muted);line-height:1.6;}
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer{
+      background:var(--g-deep);color:rgba(255,255,255,.55);
+      text-align:center;padding:2.2rem;font-size:.85rem;
+    }
+    footer strong{color:var(--g-light);}
+
+    /* ── ANIMATIONS ──────────────────────────────────── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+    .loading .sub-btn{animation:pulse 1s infinite;pointer-events:none;}
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media(max-width:768px){
+      .hero{grid-template-columns:1fr;padding-top:5.5rem;}
+      .hero-image-card{min-height:260px;}
+      .pred-wrap{grid-template-columns:1fr;}
+      .res-grid{grid-template-columns:1fr;}
+      .res-hero{grid-template-columns:1fr;}
+      .igrid{grid-template-columns:1fr;}
+      .steps-wrap::before{display:none;}
+      nav .nav-links{display:none;}
+        .nav-auth{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Agri<span>MindX</span></a>
+  {% set is_expert = session_user and session_user.role == 'expert' %}
+  <ul class="nav-links">
+    {% if not is_expert %}
+    <li><a href="#predict">Predict</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#crops">Crops</a></li>
+    {% if session_user and session_user.role == 'admin' %}
+    <li><a href="/history">History</a></li>
+    {% endif %}
+    {% endif %}
+    {% if session_user and session_user.role == 'admin' %}
+    <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+    {% endif %}
+  </ul>
+    <div class="nav-auth">
+      {% if session_user %}
+      <span class="nav-user">{{ session_user.username }}</span>
+      {% if session_user.role in ['farmer', 'member'] %}
+      <a href="{{ url_for('farmer_dashboard') }}" class="nav-link-btn" style="background:#e7f8ec;color:#1a6b35;font-weight:700;">📋 My Bookings</a>
+      {% elif session_user.role == 'expert' %}
+      <a href="{{ url_for('expert_dashboard') }}" class="nav-link-btn" style="background:#fff3cd;color:#8a5b00;font-weight:700;">📋 My Bookings</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}" class="nav-link-btn">Log out</a>
+      {% if not is_expert %}
+      <button class="nav-cta" onclick="document.getElementById('predict').scrollIntoView({behavior:'smooth'})">Try Now →</button>
+      {% endif %}
+      {% else %}
+      <a href="{{ url_for('login') }}" class="nav-link-btn">Log in</a>
+      <a href="{{ url_for('register') }}" class="nav-cta" style="text-decoration:none;display:inline-flex;align-items:center;">Create account</a>
+      {% endif %}
+    </div>
+</nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-stack">
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-blob1"></div>
+  <div class="hero-blob2"></div>
+
+  <div class="hero-text">
+    <div class="pill">🌿 AI-Driven Intelligent Crop Recommendation & Climate  Resilient Farming System</div>
+    <h1>Grow the <em>Right Crop</em><br/>Every Season</h1>
+    <p class="hero-sub">
+      Enter your soil and climate data. Our 99.77% accurate ensemble model
+      analyses 22 engineered features to recommend the perfect crop for your farm — and explains exactly why.
+    </p>
+    <div class="hero-btns">
+      {% if session_user %}
+      <a href="#predict" class="btn-p">🌾 Get Recommendation</a>
+      <a href="#how" class="btn-o">How It Works</a>
+      {% else %}
+      <a href="{{ url_for('register') }}" class="btn-p">Create account</a>
+      <a href="{{ url_for('login') }}" class="btn-o">Log in</a>
+      {% endif %}
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="v">99.77%</div><div class="l">Ensemble Accuracy</div></div>
+      <div class="stat"><div class="v">22</div><div class="l">Crop Classes</div></div>
+      <div class="stat"><div class="v">10+</div><div class="l">ML Models</div></div>
+    </div>
+  </div>
+
+  <div class="hero-image-card">
+    <img src="{{ url_for('static', filename='images/hands-hero.png') }}" alt="Digital hands protecting a young plant" loading="lazy" />
+  </div>
+</section>
+
+<!-- BOOKINGS SECTION -->
+{% if session_user and session_user.role in ['farmer', 'member'] %}
+<section class="sec" style="background:#fef9e7;border-top:2px solid #f2b01e;">
+  <div class="sec-tag">Your Consultations</div>
+  <div class="sec-title">Latest Expert Farmer Booking</div>
+  {% set user_bookings = get_user_bookings(session_user.username) %}
+  {% if user_bookings %}
+  {% set latest_booking = user_bookings[0] %}
+  <div style="max-width:600px;margin:0 auto;background:#fff;border:2px solid #f2b01e;border-radius:16px;padding:1.5rem;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <div style="font-size:.75rem;color:#8a5b00;font-weight:700;text-transform:uppercase;">Crop</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#1a6b35;margin-top:.3rem;">{{ latest_booking.crop }}</div>
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:#8a5b00;font-weight:700;text-transform:uppercase;">Expert</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#1a6b35;margin-top:.3rem;">{{ latest_booking.expert_farmer.name if latest_booking.expert_farmer else 'N/A' }}</div>
+      </div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <div style="font-size:.75rem;color:#8a5b00;font-weight:700;text-transform:uppercase;">Schedule</div>
+        <div style="font-size:.95rem;font-weight:600;color:#5a7060;margin-top:.3rem;">{{ latest_booking.preferred_date }}<br/>{{ latest_booking.preferred_time }}</div>
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:#8a5b00;font-weight:700;text-transform:uppercase;">Status</div>
+        <div style="margin-top:.3rem;"><span style="background:#d4f5ec;color:#1a6b35;padding:.3rem .7rem;border-radius:999px;font-weight:700;font-size:.85rem;">{{ latest_booking.status }}</span></div>
+      </div>
+    </div>
+    
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:.75rem;color:#8a5b00;font-weight:700;text-transform:uppercase;">Experience Rating</div>
+      <div style="font-size:1.1rem;margin-top:.3rem;">
+        {% if latest_booking.rating_stars %}
+        <span style="color:#f2b01e;font-weight:700;">
+          {% for _ in range(latest_booking.rating_stars) %}★{% endfor %}{% for _ in range(5 - latest_booking.rating_stars) %}<span style="opacity:.25;">★</span>{% endfor %}
+          <span style="margin-left:.5rem;color:#5a7060;">{{ latest_booking.rating_stars }}/5</span>
+        </span>
+        {% else %}
+        <span style="color:#8aa095;font-size:.9rem;">⭐ Not rated yet</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #f2b01e;padding-top:1rem;display:flex;gap:.8rem;flex-wrap:wrap;">
+      <a href="{{ url_for('farmer_dashboard') }}" style="flex:1;background:#1a6b35;color:#fff;padding:.7rem 1rem;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;font-size:.9rem;min-width:140px;">View All Bookings</a>
+    </div>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:2rem;color:var(--muted);">
+    <p>No bookings yet. Ready to consult with an expert farmer?</p>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- FEATURES -->
+<section class="sec" style="background:var(--white);">
+  <div class="sec-tag">What We Offer</div>
+  <div class="sec-title">Everything Your Farm Needs</div>
+  <div class="sec-sub">From soil analysis to SHAP-powered explainability — understand not just what to grow, but why.</div>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-ico">🤖</div><div class="feat-t">Ensemble AI Model</div><div class="feat-d">10 ML models including XGBoost, LightGBM, Random Forest, and ExtraTrees vote together for 99.77% accuracy.</div></div>
+    <div class="feat"><div class="feat-ico">🔍</div><div class="feat-t">SHAP Explainability</div><div class="feat-d">See exactly which soil or climate factor influenced the recommendation using real-time SHAP values.</div></div>
+    <div class="feat"><div class="feat-ico">🧪</div><div class="feat-t">22 Engineered Features</div><div class="feat-d">Beyond NPK — soil health score, climate index, nutrient balance, aridity index and more.</div></div>
+    <div class="feat"><div class="feat-ico">📋</div><div class="feat-t">Prediction History</div><div class="feat-d">Every prediction is saved. Track your farm across seasons. Compare different soil conditions.</div></div>
+  </div>
+</section>
+
+<!-- PREDICT -->
+<section class="sec" id="predict" style="background:var(--white);padding-top:3rem;">
+  <div class="pred-wrap">
+
+    <!-- Info panel -->
+    <div class="pred-info">
+      <h2>Enter Your Farm Data</h2>
+      <p>Fill in soil test results and local climate values. All 7 inputs are required for an accurate recommendation.</p>
+
+      {% if not can_predict %}
+      <div class="gate-banner">
+        <strong>Account required for analysis</strong>
+        Browsing is open to everyone, but crop analysis and prediction are available only to account holders.
+        <a href="{{ url_for('register') }}">Create an account</a> or <a href="{{ url_for('login') }}">log in</a> to continue.
+      </div>
+      {% endif %}
+
+      {% if demo_presets %}
+      <span class="presets-lbl">Try a demo preset →</span>
+      <div class="presets">
+        {% for key in demo_presets %}
+        {% if can_predict %}
+        <a href="/?demo={{ key }}" class="pre-btn">{{ key.title() }}</a>
+        {% else %}
+        <span class="pre-btn locked">{{ key.title() }}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="tips">
+        <div class="tip"><div class="tip-i">🧪</div><div class="tip-t"><strong>N, P, K</strong> values come from a soil test kit available at most agri-centres.</div></div>
+        <div class="tip"><div class="tip-i">🌡️</div><div class="tip-t"><strong>Temperature & Humidity</strong> — use your region's monthly average from a local weather station.</div></div>
+        <div class="tip"><div class="tip-i">⚗️</div><div class="tip-t"><strong>pH</strong> 6–7 is ideal for most crops. Below 5 is acidic, above 8 is alkaline.</div></div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="fcard">
+      <div class="fcard-hd">🌾 Soil & Climate Parameters</div>
+      <div class="fcard-sub">Enter values within the ranges shown for accurate results.</div>
+
+      {% if not can_predict %}
+      <div class="auth-lock">
+        <strong>Prediction locked</strong>
+        Create an account to enable crop analysis, save results, and view your personal history.
+      </div>
+      {% endif %}
+
+      {% if errors %}
+      <div class="err-box on">
+        <strong>⚠ Please fix these:</strong>
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+
+      <form method="POST" id="pForm">
+        <fieldset class="auth-disabled" {% if not can_predict %}disabled{% endif %}>
+        <div class="fsec-lbl">🌱 Soil Nutrients (kg/ha)</div>
+        <div class="igrid">
+          <div class="igrp"><label>Nitrogen (N) <span class="rng">0–140</span></label><input type="number" name="N" step="0.1" min="0" max="140" value="{{ form_data.get('N','') }}" placeholder="e.g. 90" required/></div>
+          <div class="igrp"><label>Phosphorus (P) <span class="rng">5–145</span></label><input type="number" name="P" step="0.1" min="5" max="145" value="{{ form_data.get('P','') }}" placeholder="e.g. 42" required/></div>
+          <div class="igrp"><label>Potassium (K) <span class="rng">5–205</span></label><input type="number" name="K" step="0.1" min="5" max="205" value="{{ form_data.get('K','') }}" placeholder="e.g. 43" required/></div>
+          <div class="igrp"><label>pH <span class="rng">3.5–10</span></label><input type="number" name="ph" step="0.01" min="3.5" max="10" value="{{ form_data.get('ph','') }}" placeholder="e.g. 6.5" required/></div>
+        </div>
+
+        <div class="fsec-lbl">🌦️ Climate Conditions</div>
+        <div class="igrid">
+          <div class="igrp"><label>Temperature (°C) <span class="rng">8–44</span></label><input type="number" name="temperature" step="0.1" min="8" max="44" value="{{ form_data.get('temperature','') }}" placeholder="e.g. 21" required/></div>
+          <div class="igrp"><label>Humidity (%) <span class="rng">14–100</span></label><input type="number" name="humidity" step="0.1" min="14" max="100" value="{{ form_data.get('humidity','') }}" placeholder="e.g. 82" required/></div>
+          <div class="igrp" style="grid-column:1/-1;"><label>Rainfall (mm) <span class="rng">20–300</span></label><input type="number" name="rainfall" step="0.1" min="20" max="300" value="{{ form_data.get('rainfall','') }}" placeholder="e.g. 203" required/></div>
+        </div>
+
+        <button type="submit" class="sub-btn" id="subBtn">
+          <span id="subTxt">{% if can_predict %}🔍 Analyse & Recommend Crop{% else %}Create account to analyse{% endif %}</span>
+        </button>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  {% if result %}
+  <div class="res-wrap on" id="result">
+
+    <div class="res-hero">
+      <div>
+        <div class="rh-tag">Recommended Crop</div>
+        <div class="rh-name">🌱 {{ result }}</div>
+        <div class="rh-note">Based on your soil nutrients and climate data</div>
+      </div>
+      <div class="rh-ring-wrap">
+        <div class="rh-ring" id="confRing">
+          <div class="rh-ring-val">{{ confidence }}%</div>
+        </div>
+        <div class="rh-ring-lbl">Confidence</div>
+      </div>
+    </div>
+
+    <div class="res-grid">
+
+      {% if top_factors %}
+      <div class="rcard">
+        <h4>🔍 Why this crop? (SHAP)</h4>
+        {% for f in top_factors %}
+        <div class="shap-row">
+          <div class="shap-nm">{{ f.feature }}</div>
+          <div class="shap-bw">
+            <div class="shap-b {{ f.direction }}"
+                 style="width:{{ [[f.impact|replace('+','')|float|abs * 380, 100]|min, 6]|max }}%;"></div>
+          </div>
+          <div class="shap-v {{ f.direction }}">{{ f.impact }}</div>
+        </div>
+        {% endfor %}
+        <p style="font-size:.73rem;color:var(--muted);margin-top:.75rem;">
+          Green = supports this crop
+        </p>
+      </div>
+      {% endif %}
+
+      {% if alternatives %}
+      <div class="rcard">
+        <h4>🌿 Alternative Crops</h4>
+        <div class="alt-list">
+          {% for alt in alternatives %}
+          <div class="alt-row">
+            <div class="alt-nm">{{ alt.crop }}</div>
+            <div class="alt-bw"><div class="alt-b" style="width:{{ alt.prob }}%;"></div></div>
+            <div class="alt-pct">{{ alt.prob }}%</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="rcard" style="grid-column:1/-1;">
+        <h4>📊 Input Summary</h4>
+        <div class="isumm">
+          {% for key, val in form_data.items() %}
+          <div class="is-it">
+            <div class="is-l">{{ key }}</div>
+            <div class="is-v">{{ val }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="rcard" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div>
+          <h4 style="margin-bottom:.4rem;">👨‍🌾 Need guidance from experienced farmers?</h4>
+          <p style="font-size:.86rem;color:var(--muted);line-height:1.6;">View ranked expert farmers for <strong>{{ result }}</strong> and book a consultation slot to clear your doubts.</p>
+        </div>
+        <a href="{{ url_for('farmers', crop=result) }}" style="background:linear-gradient(135deg,var(--g-mid),var(--g-deep));color:#fff;text-decoration:none;border-radius:12px;padding:.7rem 1.15rem;font-weight:700;font-size:.88rem;white-space:nowrap;">Book Expert Farmer</a>
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sec" id="how">
+  <div class="sec-tag">Process</div>
+  <div class="sec-title">How It Works</div>
+  <div class="sec-sub">From soil test to crop recommendation in seconds.</div>
+  <div class="steps-wrap">
+    <div class="step"><div class="step-n">1</div><div class="step-t">Enter Farm Data</div><div class="step-d">Input N, P, K, pH, temperature, humidity, and rainfall values.</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t">Feature Engineering</div><div class="step-d">22 features computed — soil health score, climate index, nutrient balance and more.</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-t">Ensemble Voting</div><div class="step-d">XGBoost, LightGBM, Random Forest, ExtraTrees and more vote with learned weights.</div></div>
+    <div class="step"><div class="step-n">4</div><div class="step-t">SHAP Explanation</div><div class="step-d">Real-time SHAP values show which factor drove the recommendation.</div></div>
+  </div>
+</section>
+
+<!-- CROPS -->
+<section class="crops-sec" id="crops">
+  <div class="sec-tag">Coverage</div>
+  <div class="sec-title" style="color:#fff;">22 Crops Supported</div>
+  <div class="sec-sub">Our model covers the most important food and cash crops.</div>
+  <div class="crops-grid">
+    {% set crops = [('🌾','Rice'),('🌽','Maize'),('🫘','Chickpea'),('🫘','Kidney Beans'),('🫘','Pigeon Peas'),('🫘','Moth Beans'),('🫘','Mung Bean'),('🖤','Blackgram'),('🫛','Lentil'),('🍎','Pomegranate'),('🍌','Banana'),('🥭','Mango'),('🍇','Grapes'),('🍉','Watermelon'),('🍈','Muskmelon'),('🍎','Apple'),('🍊','Orange'),('🪴','Papaya'),('🥥','Coconut'),('🧵','Cotton'),('🌿','Jute'),('☕','Coffee')] %}
+    {% for e,n in crops %}
+    <a class="crop-chip" href="{{ url_for('crop_detail', crop_name=n) }}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:block;"><span class="cc-e">{{e}}</span><span class="cc-n">{{n}}</span></a>
+    {% endfor %}
+  </div>
+</section>
+
+<footer>
+  <p>Built with ❤️ for precision agriculture &nbsp;|&nbsp; <strong>AgrimindX</strong> –  Project &nbsp;|&nbsp; Accuracy: <strong>99.77%</strong></p>
+</footer>
+
+<script>
+  // Scroll to result after POST
+  {% if result %}
+  window.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('result');
+    if (el) setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'start'}), 250);
+    // Animate confidence ring
+    const pct = parseFloat('{{ confidence }}');
+    const ring = document.getElementById('confRing');
+    if (ring && !isNaN(pct)) {
+      ring.style.background =
+        `conic-gradient(#2dbb5d ${pct * 3.6}deg, rgba(255,255,255,0.15) 0deg)`;
+    }
+  });
+  {% endif %}
+
+  // Loading state
+  const predictionForm = document.getElementById('pForm');
+  if (predictionForm && !predictionForm.querySelector('fieldset')?.disabled) {
+    predictionForm.addEventListener('submit', function() {
+      document.body.classList.add('loading');
+      document.getElementById('subTxt').textContent = '⏳ Analysing…';
+    });
+  }
+</script>
+</body>
+</html>

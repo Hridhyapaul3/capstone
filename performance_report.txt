@@ -1,0 +1,134 @@
+======================================================================
+CROP RECOMMENDATION SYSTEM – IMPROVED PERFORMANCE REPORT
+======================================================================
+
+Generated : 2026-04-03 10:52:48
+Dataset   : Crop_recommendation.csv
+Samples   : 2200  (Train 1760 / Test 440)
+Classes   : 22
+Features  : 22
+
+----------------------------------------------------------------------
+INDIVIDUAL MODEL PERFORMANCE
+----------------------------------------------------------------------
+
+lgbm_all:
+  Type     : LGBMClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9932
+  CV       : 0.9847 (±0.0146)
+  Weight   : 0.0924
+
+rf_all:
+  Type     : RandomForestClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9909
+  CV       : 0.9875 (±0.0077)
+  Weight   : 0.0927
+
+et_all:
+  Type     : ExtraTreesClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9909
+  CV       : 0.9886 (±0.0161)
+  Weight   : 0.0928
+
+xgb_all:
+  Type     : XGBClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9909
+  CV       : 0.9818 (±0.0142)
+  Weight   : 0.0922
+
+et_comprehensive:
+  Type     : ExtraTreesClassifier
+  Subset   : comprehensive
+  Train    : 0.9994
+  Test     : 0.9886
+  CV       : 0.9898 (±0.0155)
+  Weight   : 0.0929
+
+rf_soil:
+  Type     : RandomForestClassifier
+  Subset   : soil_nutrients
+  Train    : 0.9983
+  Test     : 0.9864
+  CV       : 0.9858 (±0.0080)
+  Weight   : 0.0925
+
+knn_all:
+  Type     : KNeighborsClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9705
+  CV       : 0.9659 (±0.0157)
+  Weight   : 0.0907
+
+gb_all:
+  Type     : GradientBoostingClassifier
+  Subset   : all_features
+  Train    : 1.0000
+  Test     : 0.9682
+  CV       : 0.9631 (±0.0224)
+  Weight   : 0.0904
+
+gb_soil_climate:
+  Type     : GradientBoostingClassifier
+  Subset   : soil_climate
+  Train    : 1.0000
+  Test     : 0.9682
+  CV       : 0.9631 (±0.0224)
+  Weight   : 0.0904
+
+rf_climate:
+  Type     : RandomForestClassifier
+  Subset   : climate
+  Train    : 0.9852
+  Test     : 0.9386
+  CV       : 0.9125 (±0.0247)
+  Weight   : 0.0857
+
+dt_interactions:
+  Type     : DecisionTreeClassifier
+  Subset   : interactions
+  Train    : 0.9920
+  Test     : 0.9318
+  CV       : 0.9301 (±0.0202)
+  Weight   : 0.0873
+
+----------------------------------------------------------------------
+WEIGHTED ENSEMBLE PERFORMANCE
+----------------------------------------------------------------------
+  Accuracy   : 0.9977
+  Cohen Kappa: 0.9976
+  Macro F1   : 0.9977
+  ROC-AUC    : 1.0000
+
+  Stacking Ensemble Accuracy: 0.9977
+
+----------------------------------------------------------------------
+TOP 15 FEATURES
+----------------------------------------------------------------------
+   1. K                              : 466.0634
+   2. humidity                       : 438.2712
+   3. nutrient_balance               : 416.4181
+   4. P                              : 360.8588
+   5. PK_ratio                       : 334.0282
+   6. rainfall                       : 333.0638
+   7. rainfall_humidity_ratio        : 302.8659
+   8. aridity_index                  : 284.0398
+   9. P_K_interaction                : 283.4269
+  10. NK_ratio                       : 276.6444
+  11. NPK_sum                        : 275.8256
+  12. ph                             : 264.2104
+  13. climate_index                  : 245.2435
+  14. soil_health_score              : 243.0326
+  15. temp_humidity_interaction      : 238.2406
+
+======================================================================
+END OF REPORT
+======================================================================

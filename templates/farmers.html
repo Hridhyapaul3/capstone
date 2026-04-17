@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expert Farmers | AgriMindX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--green:#1a6b35;--deep:#0d3d1f;--soft:#f4f7f0;--line:#d6e8da;--text:#1a2a1d;--muted:#5a7060}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--soft);color:var(--text);padding:2rem 1rem}
+    .wrap{max-width:1120px;margin:0 auto}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem}
+    .back{color:var(--green);text-decoration:none;font-weight:700}
+    .back:hover{text-decoration:underline}
+    h1{font-family:'Playfair Display',serif;color:var(--deep);font-size:2rem}
+    .sub{color:var(--muted);margin-top:.3rem}
+    .layout{display:grid;grid-template-columns:1.15fr .85fr;gap:1rem;align-items:start}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1rem}
+    .rank-item{border:1px solid var(--line);border-radius:12px;padding:.85rem;margin-bottom:.7rem;background:#fcfffd}
+    .rank-item:last-child{margin-bottom:0}
+    .hd{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap}
+    .name{font-weight:700;color:var(--deep)}
+    .badge{font-size:.77rem;border-radius:999px;padding:.18rem .55rem;background:#e7f8ec;color:var(--green);font-weight:700}
+    .meta{font-size:.85rem;color:var(--muted);line-height:1.55;margin-top:.4rem}
+    .slots{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
+    .slot{background:#eef7f1;border:1px solid #d4eadb;border-radius:999px;padding:.2rem .55rem;font-size:.75rem}
+    .rating-display{display:inline-flex;align-items:center;gap:.3rem;background:#fef9e7;padding:.3rem .6rem;border-radius:999px;font-weight:700;color:#b8860b}
+    .star-icon{color:#f2b01e;font-size:.9rem}
+    .star-icon.empty{opacity:.25}
+    .flash{background:#ecfdf3;border:1px solid #b7ebc9;color:#166534;padding:.8rem .9rem;border-radius:12px;margin-bottom:.8rem;font-size:.9rem}
+    .errors{background:#fff5f5;border:1px solid #fc8181;color:#c53030;padding:.8rem .9rem;border-radius:12px;margin-bottom:.8rem}
+    .errors ul{padding-left:1rem;margin-top:.45rem}
+    label{display:block;font-size:.79rem;font-weight:700;color:var(--green);margin:.72rem 0 .3rem}
+    input,select,textarea{width:100%;padding:.62rem .72rem;border:1.4px solid var(--line);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.93rem}
+    textarea{min-height:96px;resize:vertical}
+    select:disabled{background:#f5f7f4;color:#8aa095;cursor:not-allowed}
+    .btn{width:100%;margin-top:.9rem;background:linear-gradient(135deg,var(--green),var(--deep));color:#fff;border:none;border-radius:12px;padding:.75rem .9rem;font-weight:700;cursor:pointer}
+    .hint{font-size:.78rem;color:var(--muted);margin-top:.42rem}
+    .confirm-banner{margin-top:.7rem;display:inline-block;background:#1a6b35;color:#fff;padding:.5rem .9rem;border-radius:999px;font-size:.82rem;font-weight:700}
+    @media(max-width:920px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a class="back" href="{{ url_for('home') }}">← Back to Predictor</a>
+        <h1>Expert Farmers Ranking</h1>
+        <div class="sub">Logged in as {{ current_user.username }}{% if requested_crop %} • Crop focus: {{ requested_crop }}{% endif %}</div>
+      </div>
+      <a class="back" href="{{ url_for('farmer_dashboard') }}">My Farmer Dashboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="layout">
+      <div class="card">
+        <h3 style="margin-bottom:.8rem;color:var(--deep);">Ranked by Crop Match + Experience + Rating</h3>
+        {% if experts %}
+        {% for row in experts %}
+        <div class="rank-item">
+          <div class="hd">
+            <div class="name">#{{ loop.index }} {{ row.display_name }}</div>
+            <div>
+              {% if row.is_crop_match %}
+              <span class="badge">Crop Match</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="meta">
+            Speciality: {{ row.expert.crop_speciality }} | Experience: {{ row.expert.experience_years }} years<br/>
+            Location: {{ row.expert.district }}, {{ row.expert.state }} | Contact: {{ row.expert.phone }}
+            <div style="margin-top:.5rem;">
+              <span class="rating-display">
+                {% if row.expert.rating and row.expert.rating > 0 %}
+                  {% set rating = row.expert.rating | int %}
+                  {% for i in range(1, 6) %}
+                    <span class="star-icon {% if i > rating %}empty{% endif %}">★</span>
+                  {% endfor %}
+                  <span style="margin-left:.3rem;color:#5a7060;">{{ row.expert.rating }}/5</span>
+                {% else %}
+                  <span style="color:#8aa095;">No ratings yet</span>
+                {% endif %}
+              </span>
+            </div>
+          </div>
+          <div class="slots">
+            {% for slot in row.slots %}
+            <span class="slot">{{ slot }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+        {% elif requested_crop %}
+        <div class="hint">No experts are available for {{ requested_crop }} right now.</div>
+        {% else %}
+        <div class="hint">Select a crop to view only matching experts for booking.</div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:.3rem;color:var(--deep);">Book Consultation Schedule</h3>
+        <div class="hint">Select a crop and expert, then submit your doubt.</div>
+        {% if booking_confirmed %}
+        <div class="confirm-banner">Your booking confirmed</div>
+        {% endif %}
+
+        {% if errors %}
+        <div class="errors">
+          <strong>Please fix these:</strong>
+          <ul>
+            {% for e in errors %}
+            <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+          <label>Farmer name</label>
+          <input name="farmer_name" value="{{ request.form.get('farmer_name', current_user.username) }}" required/>
+
+          <label>Phone</label>
+          <input name="farmer_phone" placeholder="10-digit phone" value="{{ request.form.get('farmer_phone', '') }}" required/>
+
+          <label>Email ID</label>
+          <input type="email" name="farmer_email" placeholder="name@example.com" value="{{ request.form.get('farmer_email', current_user.email if current_user.email else '') }}" required/>
+
+          <label>Crop</label>
+          <select name="crop" required>
+            <option value="">Select crop</option>
+            {% for crop in crop_names %}
+            <option value="{{ crop }}" {% if requested_crop == crop %}selected{% endif %}>{{ crop }}</option>
+            {% endfor %}
+          </select>
+
+          <label>Expert farmer</label>
+          <select name="expert_farmer_id" id="expert-farmer" required>
+            <option value="">Select expert</option>
+            {% for row in experts %}
+            <option value="{{ row.expert.id }}" data-slots='{{ row.slots | tojson }}' {% if request.form.get('expert_farmer_id', '0')|int == row.expert.id %}selected{% endif %}>{{ row.display_name }} - {{ row.expert.crop_speciality }} ({{ row.expert.experience_years }} yrs)</option>
+            {% endfor %}
+          </select>
+
+          <label>Preferred date</label>
+          <input type="date" name="preferred_date" value="{{ request.form.get('preferred_date', '') }}" required/>
+
+          <label>Preferred time</label>
+          <select name="preferred_time" id="preferred-time" required disabled>
+            <option value="">Select expert first</option>
+          </select>
+          <div class="hint" id="slot-hint">Choose an expert farmer to see the exact three available consultation slots.</div>
+
+          <label>Your question</label>
+          <textarea name="question" placeholder="Explain your farming doubt..." required>{{ request.form.get('question', '') }}</textarea>
+
+          <button class="btn" type="submit">Create Booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const expertSelect = document.getElementById('expert-farmer');
+    const timeSelect = document.getElementById('preferred-time');
+    const slotHint = document.getElementById('slot-hint');
+
+    function setTimeOptions(slots, selectedTime) {
+      timeSelect.innerHTML = '';
+
+      if (!slots.length) {
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Select expert first';
+        timeSelect.appendChild(emptyOption);
+        timeSelect.disabled = true;
+        slotHint.textContent = 'Choose an expert farmer to see the exact three available consultation slots.';
+        return;
+      }
+
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select a consultation slot';
+      timeSelect.appendChild(defaultOption);
+
+      slots.forEach((slot) => {
+        const option = document.createElement('option');
+        option.value = slot;
+        option.textContent = slot;
+        if (slot === selectedTime) {
+          option.selected = true;
+        }
+        timeSelect.appendChild(option);
+      });
+
+      timeSelect.disabled = false;
+      slotHint.textContent = `Available slots: ${slots.join(', ')}`;
+    }
+
+    function syncSlots() {
+      const selectedOption = expertSelect.options[expertSelect.selectedIndex];
+      const slots = selectedOption && selectedOption.dataset.slots ? JSON.parse(selectedOption.dataset.slots) : [];
+      const selectedTime = {{ request.form.get('preferred_time', '') | tojson }};
+      setTimeOptions(Array.isArray(slots) ? slots : [], selectedTime);
+    }
+
+    expertSelect.addEventListener('change', syncSlots);
+    syncSlots();
+  </script>
+</body>
+</html>

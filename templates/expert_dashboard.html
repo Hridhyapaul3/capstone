@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expert Dashboard | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:1080px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    h1{color:#0d3d1f}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    .btn{display:inline-block;background:#1a6b35;color:#fff!important;border:none;border-radius:8px;padding:.55rem .9rem;font-size:.9rem;font-weight:700;text-decoration:none}
+    .btn:hover{background:#14542b;text-decoration:none}
+    .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem}
+    .profile-item{background:#f9fdf7;border:1px solid #d6e8da;border-radius:10px;padding:.75rem .85rem}
+    .profile-item h3{font-size:.8rem;color:#1a6b35;margin-bottom:.25rem}
+    .profile-item p{color:#2d4733;font-size:.95rem}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0}
+    .badge{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#e7f8ec;color:#1a6b35;font-weight:700;font-size:.76rem}
+    .empty{text-align:center;padding:2rem;color:#5a7060}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('home') }}">← Back to Home</a>
+        <h1>Expert Dashboard</h1>
+        <p style="color:#5a7060;margin-top:.2rem;">Welcome, {{ current_user.username }}. You can only view booking details for slots booked with you.</p>
+      </div>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+        <a class="btn" href="#my-bookings">View Bookings</a>
+        <a href="{{ url_for('logout') }}" style="color:#c53030;font-weight:700;">Log out</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem;">
+      <h2 style="color:#1a6b35;font-size:1.05rem;margin-bottom:.6rem;">My Profile</h2>
+      <div class="profile-grid">
+        <div class="profile-item">
+          <h3>Name</h3>
+          <p>{{ expert.name }}</p>
+        </div>
+        <div class="profile-item">
+          <h3>Speciality</h3>
+          <p>{{ expert.crop_speciality }}</p>
+        </div>
+        <div class="profile-item">
+          <h3>Experience</h3>
+          <p>{{ expert.experience_years }} years</p>
+        </div>
+        <div class="profile-item">
+          <h3>Average Rating</h3>
+          <p>{{ expert.rating }}/5</p>
+        </div>
+        <div class="profile-item">
+          <h3>Location</h3>
+          <p>{{ expert.district }}, {{ expert.state }}</p>
+        </div>
+        <div class="profile-item">
+          <h3>Phone</h3>
+          <p>{{ expert.phone }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="my-bookings">
+      <h2 style="color:#1a6b35;font-size:1.05rem;margin-bottom:.6rem;">Incoming Consultation Bookings</h2>
+      {% if bookings %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Booked By (Username)</th>
+            <th>Booked</th>
+            <th>Farmer Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Crop</th>
+            <th>Booked Slot Time</th>
+            <th>Status</th>
+            <th>Farmer Rating</th>
+            <th>Question</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ b.created_by_username if b.created_by_username else 'N/A' }}</td>
+            <td>{{ b.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ b.farmer_name }}</td>
+            <td>{{ b.farmer_phone }}</td>
+            <td>{{ b.farmer_email }}</td>
+            <td>{{ b.crop }}</td>
+            <td>{{ b.preferred_date }} {{ b.preferred_time }}</td>
+            <td><span class="badge">{{ b.status }}</span></td>
+            <td>
+              {% if b.rating_stars %}
+              <span style="color:#f2b01e;font-weight:700;">
+                {% for _ in range(b.rating_stars) %}★{% endfor %}{% for _ in range(5 - b.rating_stars) %}<span style="opacity:.25;">★</span>{% endfor %}
+                {{ b.rating_stars }}/5
+              </span>
+              {% else %}
+              <span style="color:#8aa095;font-size:.8rem;">Pending</span>
+              {% endif %}
+            </td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">{{ b.question }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No consultation bookings yet. Check back later!</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

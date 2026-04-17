@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:1180px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    h1{color:#0d3d1f}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .top-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .btn{background:#1a6b35;color:#fff!important;padding:.56rem .95rem;border-radius:8px;text-decoration:none;font-size:.9rem;display:inline-block;font-weight:700}
+    .btn:hover{background:#14542b;text-decoration:none}
+    .grid{display:grid;grid-template-columns:1fr;gap:1rem}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    h2{color:#1a6b35;font-size:1.05rem;margin-bottom:.6rem}
+    .card-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem}
+    .card-head h2{margin-bottom:0}
+    .flash{border-radius:12px;padding:.8rem .9rem;margin-bottom:.7rem;font-size:.9rem}
+    .flash.success{background:#ecfdf3;border:1px solid #b7ebc9;color:#166534}
+    .flash.auth{background:#fff7e6;border:1px solid #f7d28b;color:#8a5b00}
+    .status{display:inline-block;padding:.2rem .55rem;border-radius:999px;font-size:.8rem;font-weight:700}
+    .status.ok{background:#e7f8ec;color:#1a6b35}
+    .status.warn{background:#fff7e6;color:#8a5b00}
+    .mini-form{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+    .mini-form input{padding:.55rem .7rem;border:1px solid #d6e8da;border-radius:8px;min-width:260px;flex:1}
+    .mini-btn{background:#1a6b35;color:#fff;border:none;border-radius:8px;padding:.56rem .9rem;font-size:.88rem;font-weight:700;cursor:pointer}
+    .mini-btn:hover{background:#14542b}
+    .danger-btn{background:#b42318}
+    .danger-btn:hover{background:#8f1a12}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+    .field{display:flex;flex-direction:column;gap:.35rem}
+    .full{grid-column:1 / -1}
+    .field label{font-size:.85rem;color:#2d4733;font-weight:600}
+    .field input,.field select,.field textarea{padding:.6rem .7rem;border:1px solid #cfe3d4;border-radius:8px;font:inherit}
+    .field textarea{min-height:80px;resize:vertical}
+    .form-actions{display:flex;gap:.6rem;align-items:center;margin-top:.8rem;flex-wrap:wrap}
+    @media (max-width:760px){.form-grid{grid-template-columns:1fr}}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;white-space:nowrap}
+    .delete-btn{background:#c53030;color:#fff;border:none;border-radius:6px;padding:.35rem .65rem;font-size:.8rem;font-weight:700;cursor:pointer;transition:background .2s}
+    .delete-btn:hover{background:#9e2a2b}
+    .empty{text-align:center;padding:2rem;color:#5a7060}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('home') }}">← Back to Home</a>
+        <h1>Admin Dashboard</h1>
+        <p style="color:#5a7060;margin-top:.2rem;">Monitor expert farmers and farmer consultation bookings.</p>
+      </div>
+      <div class="top-actions">
+        <a class="btn" href="{{ url_for('add_expert') }}">➕ Add Expert Farmers</a>
+        <a class="btn" href="{{ url_for('admin_market_prices') }}">💰 Add Market Price</a>
+        <a href="{{ url_for('logout') }}">Log out</a>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="flash {{ category if category in ['success', 'auth'] else 'auth' }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-head">
+          <h2>Farmer Login Credentials</h2>
+          <span class="status {{ 'ok' if farmer_users else 'warn' }}">{{ farmer_users|length }} account{{ '' if farmer_users|length == 1 else 's' }}</span>
+        </div>
+        {% if farmer_users %}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Created (IST)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in farmer_users %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email if u.email else 'N/A' }}</td>
+              <td>{{ u.role }}</td>
+              <td>{{ u.created_at | localtime('%Y-%m-%d %H:%M') }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('admin_delete_farmer_credentials') }}" onsubmit="return confirm('Delete login credentials for ' + {{ u.username|tojson }} + '?');">
+                  <input type="hidden" name="user_id" value="{{ u.id }}"/>
+                  <button type="submit" class="mini-btn danger-btn">Delete Credentials</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No farmer/member login credentials found.</div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>🌟 Expert Farmers Login Credentials</h2>
+        </div>
+        {% if experts %}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Speciality</th>
+              <th>Experience</th>
+              <th>Location</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in experts %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><strong>{{ e.name }}</strong></td>
+              <td>{{ e.crop_speciality }}</td>
+              <td>{{ e.experience_years }} yrs</td>
+              <td>{{ e.district }}, {{ e.state }}</td>
+              <td>
+                {% if e.user %}
+                <code style="background:#f0f0f0;padding:.2rem .4rem;border-radius:4px;font-size:.85rem;color:#0d3d1f">{{ e.user.username }}</code>
+                {% else %}
+                <span style="color:#8aa095;font-size:.85rem;">No account</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if e.user %}
+                <code style="background:#fff3cd;padding:.2rem .4rem;border-radius:4px;font-size:.85rem;color:#8a5b00;font-weight:700">{{ expert_default_password }}</code>
+                {% else %}
+                <span style="color:#8aa095;font-size:.85rem;">—</span>
+                {% endif %}
+              </td>
+              <td>
+                <span style="color:#f2b01e;font-weight:700;">
+                  {% set rating = e.rating | int %}
+                  {% for i in range(1, 6) %}
+                    {% if i <= rating %}<span>★</span>{% else %}<span style="opacity:.25;">★</span>{% endif %}
+                  {% endfor %}
+                  <span style="margin-left:.3rem;color:#5a7060;">({{ e.rating }})</span>
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No expert farmers added yet.</div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Add Expert Farmers</h2>
+        </div>
+        <form method="POST" action="{{ url_for('add_expert') }}">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" required/>
+            </div>
+
+            <div class="field">
+              <label for="crop_speciality">Crop Speciality</label>
+              <select id="crop_speciality" name="crop_speciality" required>
+                <option value="">Select crop</option>
+                {% for c in crop_names %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="experience_years">Experience Years</label>
+              <input id="experience_years" name="experience_years" type="number" min="0" max="60" required/>
+            </div>
+
+            <div class="field">
+              <label for="rating">Rating (0 to 5)</label>
+              <input id="rating" name="rating" type="number" min="0" max="5" step="0.1" value="4.5" required/>
+            </div>
+
+            <div class="field">
+              <label for="district">District</label>
+              <input id="district" name="district" required/>
+            </div>
+
+            <div class="field">
+              <label for="state">State</label>
+              <input id="state" name="state" required/>
+            </div>
+
+            <div class="field full">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" required/>
+            </div>
+
+            <div class="field full">
+              <label for="available_slots">Available Slots (comma separated)</label>
+              <textarea id="available_slots" name="available_slots" placeholder="Mon 10:00, Wed 16:00, Sat 11:30" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="mini-btn">Save Expert Farmer</button>
+            <a href="{{ url_for('admin_dashboard') }}">Reset</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Market Prices</h2>
+          <a class="btn" href="{{ url_for('admin_market_prices') }}">+ Add Market Price</a>
+        </div>
+        <div class="empty" style="padding:1rem 0 0 0;text-align:left;">
+          Manage crop market price ranges from the admin market price page.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Prediction History</h2>
+        {% if predictions %}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Time (IST)</th>
+              <th>User</th>
+              <th>Crop</th>
+              <th>Confidence</th>
+              <th>N</th>
+              <th>P</th>
+              <th>K</th>
+              <th>Temp</th>
+              <th>Humidity</th>
+              <th>pH</th>
+              <th>Rainfall</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in predictions %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ p.timestamp | localtime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ p.owner_username if p.owner_username else 'N/A' }}</td>
+              <td>{{ p.result }}</td>
+              <td>{{ p.confidence }}%</td>
+              <td>{{ p.N }}</td>
+              <td>{{ p.P }}</td>
+              <td>{{ p.K }}</td>
+              <td>{{ p.temperature }}</td>
+              <td>{{ p.humidity }}</td>
+              <td>{{ p.ph }}</td>
+              <td>{{ p.rainfall }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No prediction history found.</div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>Farmer Bookings</h2>
+        {% if bookings %}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Created (IST)</th>
+              <th>Farmer User</th>
+              <th>Farmer Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Crop</th>
+              <th>Expert</th>
+              <th>Schedule</th>
+              <th>Status</th>
+              <th>Question</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td>{{ b.id }}</td>
+              <td>{{ b.created_at | localtime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ b.created_by_username }}</td>
+              <td>{{ b.farmer_name }}</td>
+              <td>{{ b.farmer_phone }}</td>
+              <td>{{ b.farmer_email }}</td>
+              <td>{{ b.crop }}</td>
+              <td>{{ b.expert_farmer.name if b.expert_farmer else 'N/A' }}</td>
+              <td>{{ b.preferred_date }} {{ b.preferred_time }}</td>
+              <td>{{ b.status }}</td>
+              <td>{{ b.question }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('admin_delete_booking') }}" style="display:inline;" onsubmit="return confirm('Delete this booking permanently? This cannot be undone.');">
+                  <input type="hidden" name="booking_id" value="{{ b.id }}"/>
+                  <button type="submit" class="delete-btn">🗑 Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No bookings yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

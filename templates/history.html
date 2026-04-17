@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prediction History</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0fff4;
+      padding: 2rem 1rem;
+      color: #2d3748;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    h1 { color: #276749; margin-bottom: .35rem; font-size: 1.8rem; }
+    .subtitle { color:#4a5568; font-size:.95rem; }
+    .actions { display:flex; gap:.75rem; align-items:center; }
+    .back, .logout {
+      color: #276749; text-decoration: none; font-size:.9rem;
+      border: 1px solid #276749; border-radius:20px; padding:4px 14px;
+      display:inline-block;
+    }
+    .back:hover { background:#276749; color:#fff; }
+    .logout:hover { background:#276749; color:#fff; }
+    .card { background:#fff; border-radius:14px; padding:1.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,.07); overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.9rem; }
+    th { background:#276749; color:#fff; padding:.7rem 1rem; text-align:left; white-space:nowrap; }
+    td { padding:.65rem 1rem; border-bottom:1px solid #e2e8f0; white-space:nowrap; }
+    tr:hover td { background:#f0fff4; }
+    .badge {
+      display:inline-block; padding:3px 12px; border-radius:999px;
+      background:#c6f6d5; color:#276749; font-weight:600; font-size:.82rem;
+    }
+    .empty { text-align:center; color:#888; padding:3rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <a href="{{ url_for('admin_dashboard') if is_admin_view else '/' }}" class="back">← Back to {{ 'Admin Dashboard' if is_admin_view else 'Predictor' }}</a>
+      <h1>📋 Prediction History</h1>
+      {% if is_admin_view %}
+      <div class="subtitle">Admin view: showing latest prediction history across all users.</div>
+      {% else %}
+      <div class="subtitle">Private history for {{ current_user.username }}.</div>
+      {% endif %}
+    </div>
+    <div class="actions">
+      <a href="/logout" class="logout">Log out</a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if records %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date &amp; Time</th>
+          {% if is_admin_view %}<th>User</th>{% endif %}
+          <th>N</th><th>P</th><th>K</th>
+          <th>Temp (°C)</th><th>Humidity (%)</th>
+          <th>pH</th><th>Rainfall (mm)</th>
+          <th>Crop</th>
+          <th>Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.timestamp | localtime('%Y-%m-%d %H:%M') }}</td>
+          {% if is_admin_view %}<td>{{ r.owner_username if r.owner_username else 'N/A' }}</td>{% endif %}
+          <td>{{ r.N }}</td>
+          <td>{{ r.P }}</td>
+          <td>{{ r.K }}</td>
+          <td>{{ r.temperature }}</td>
+          <td>{{ r.humidity }}</td>
+          <td>{{ r.ph }}</td>
+          <td>{{ r.rainfall }}</td>
+          <td><span class="badge">{{ r.result }}</span></td>
+          <td>{{ r.confidence }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No predictions yet. Make your first prediction!</div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

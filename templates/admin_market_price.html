@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Market Prices | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:1080px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+    .top h1{color:#0d3d1f;font-size:1.4rem}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .btn{background:#1a6b35;color:#fff;border:0;padding:.55rem .9rem;border-radius:8px;cursor:pointer;font-weight:700}
+    .btn:hover{background:#14542b}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    .form{display:grid;grid-template-columns:220px 1fr auto;gap:.6rem;align-items:end;margin-bottom:1rem}
+    label{display:block;font-size:.84rem;color:#5a7060;margin-bottom:.25rem}
+    select,input{width:100%;padding:.55rem .65rem;border:1px solid #cfe3d4;border-radius:8px;font:inherit}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;white-space:nowrap}
+    .empty{text-align:center;padding:1.2rem;color:#5a7060}
+    .flash{margin-bottom:.7rem;padding:.65rem .75rem;border-radius:8px;border:1px solid transparent;font-size:.88rem}
+    .flash.success{background:#ecfdf3;border-color:#b7ebc9;color:#166534}
+    .flash.auth{background:#fff7e6;border-color:#f7d28b;color:#8a5b00}
+    @media (max-width:900px){.form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+        <h1>Market Price Management</h1>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+      <form class="form" method="POST" action="{{ url_for('update_market_price') }}">
+        <div>
+          <label for="crop_name">Crop</label>
+          <select id="crop_name" name="crop_name" required>
+            <option value="">Select crop</option>
+            {% for crop in crop_names %}
+            <option value="{{ crop }}">{{ crop }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="price_range">Market price value</label>
+          <input id="price_range" name="price_range" type="text" placeholder="INR 2800 - 3400 / quintal" required/>
+        </div>
+
+        <div>
+          <button type="submit" class="btn">Save Price</button>
+        </div>
+      </form>
+
+      {% if market_prices %}
+      <table>
+        <thead>
+          <tr>
+            <th>Crop</th>
+            <th>Market Price</th>
+            <th>Updated At</th>
+            <th>Updated By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in market_prices %}
+          <tr>
+            <td>{{ p.crop_name }}</td>
+            <td>{{ p.price_range }}</td>
+            <td>{{ p.updated_at.strftime('%Y-%m-%d %H:%M') if p.updated_at else '-' }}</td>
+            <td>{{ p.updated_by_username or 'System' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

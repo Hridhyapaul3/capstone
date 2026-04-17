@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Activities | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:1160px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+    h1{color:#0d3d1f}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .btn{background:#1a6b35;color:#fff!important;padding:.56rem .95rem;border-radius:8px;text-decoration:none;font-size:.9rem;display:inline-block;font-weight:700}
+    .btn:hover{background:#14542b;text-decoration:none}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;vertical-align:top}
+    .empty{text-align:center;padding:2rem;color:#5a7060}
+    .type{display:inline-block;padding:.18rem .55rem;border-radius:999px;background:#e7f8ec;color:#1a6b35;font-size:.78rem;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+        <h1>Admin Activities</h1>
+        <p style="color:#5a7060;margin-top:.2rem;">Track admin operations like expert adds, market price updates, credential deletions, and booking detail views.</p>
+      </div>
+      <a class="btn" href="{{ url_for('admin_dashboard') }}">Open Dashboard</a>
+    </div>
+
+    <div class="card">
+      {% if activities %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Admin</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in activities %}
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') if item.timestamp else 'N/A' }}</td>
+            <td>{{ item.admin_username }}</td>
+            <td><span class="type">{{ item.activity_type }}</span></td>
+            <td>{{ item.description }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No admin activities logged yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

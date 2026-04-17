@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Dashboard | AgriMindX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:1080px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    h1{color:#0d3d1f}
+    a{color:#1a6b35;text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;white-space:nowrap}
+    .badge{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#e7f8ec;color:#1a6b35;font-weight:700;font-size:.76rem}
+    .stars{display:flex;gap:.25rem;align-items:center}
+    .star{color:#f2b01e;font-size:1rem;line-height:1}
+    .rate-form{display:flex;gap:.4rem;align-items:center}
+    .rate-select{padding:.35rem .45rem;border:1px solid #d6e8da;border-radius:8px;font-size:.8rem}
+    .rate-btn{border:none;background:#1a6b35;color:#fff;padding:.36rem .55rem;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer}
+    .muted{color:#5a7060;font-size:.8rem}
+    .empty{text-align:center;padding:2rem;color:#5a7060}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <a href="{{ url_for('home') }}">← Back to Home</a>
+        <h1>Farmer Dashboard</h1>
+        <p style="color:#5a7060;margin-top:.2rem;">Welcome, {{ current_user.username }}. Your expert consultation bookings are listed below.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      {% if bookings %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Created</th>
+            <th>Crop</th>
+            <th>Expert</th>
+            <th>Schedule</th>
+            <th>Status</th>
+            <th>Rate Experience</th>
+            <th>Question</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ b.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ b.crop }}</td>
+            <td>{{ b.expert_farmer.name if b.expert_farmer else 'N/A' }}</td>
+            <td>{{ b.preferred_date }} {{ b.preferred_time }}</td>
+            <td><span class="badge">{{ b.status }}</span></td>
+            <td>
+              {% if b.rating_stars %}
+              <div class="stars" title="{{ b.rating_stars }} stars">
+                {% for _ in range(b.rating_stars) %}<span class="star">★</span>{% endfor %}
+                {% for _ in range(5 - b.rating_stars) %}<span class="star" style="opacity:.25;">★</span>{% endfor %}
+              </div>
+              {% else %}
+              <form class="rate-form" method="POST" action="{{ url_for('farmer_rate_booking') }}">
+                <input type="hidden" name="booking_id" value="{{ b.id }}"/>
+                <select class="rate-select" name="rating_stars" required>
+                  <option value="">Stars</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+                <button class="rate-btn" type="submit">Submit</button>
+              </form>
+              {% endif %}
+            </td>
+            <td>{{ b.question }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No bookings yet. Create your first consultation schedule.</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
