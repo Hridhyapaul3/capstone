@@ -4,85 +4,35 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Expert Farmer | AgriMindX</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'DM Sans',sans-serif;
-      background:
-        radial-gradient(circle at 0% 0%, #e4f1e8 0%, transparent 42%),
-        radial-gradient(circle at 100% 100%, #d8eadf 0%, transparent 38%),
-        #f4f8f2;
-      color:#1a2a1d;
-      padding:6.7rem 1rem 2rem;
-    }
-    .wrap{max-width:860px;margin:0 auto}
-    nav{
-      position:fixed;top:0;left:0;right:0;z-index:200;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:.9rem 2.5rem;
-      background:rgba(244,247,240,.94);backdrop-filter:blur(16px);
-      border-bottom:1px solid #d6e8da;
-    }
-    .logo{
-      font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;
-      color:#0d3d1f;text-decoration:none;
-    }
-    .logo span{color:#2dbb5d}
-    .nav-links{display:flex;gap:1.4rem;list-style:none}
-    .nav-links a{text-decoration:none;color:#5a7060;font-size:.88rem;font-weight:600}
-    .nav-links a:hover{color:#1a6b35}
-    .nav-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
-    .card{background:#fff;border:1px solid #d6e8da;border-radius:18px;padding:1rem;box-shadow:0 12px 32px rgba(13,61,31,.08)}
-    .top{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
-    h1{font-family:'Playfair Display',serif;color:#0d3d1f;font-size:2rem;line-height:1.1}
-    .top p{color:#5a7060;margin-top:.25rem}
+    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    .wrap{max-width:760px;margin:0 auto}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+    h1{color:#0d3d1f;font-size:1.25rem}
     a{color:#1a6b35;text-decoration:none;font-weight:600}
     a:hover{text-decoration:underline}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
     .field{display:flex;flex-direction:column;gap:.35rem}
     .full{grid-column:1 / -1}
-    label{font-size:.86rem;color:#2d4733;font-weight:600}
+    label{font-size:.9rem;color:#2d4733}
     input,select,textarea{padding:.6rem .7rem;border:1px solid #cfe3d4;border-radius:8px;font:inherit}
     textarea{min-height:80px;resize:vertical}
     .actions{display:flex;gap:.6rem;align-items:center;margin-top:.8rem}
-    .btn{
-      background:linear-gradient(135deg,#1a6b35,#0d3d1f);color:#fff;border:0;
-      padding:.58rem 1.02rem;border-radius:999px;cursor:pointer;font-weight:700;
-      box-shadow:0 8px 20px rgba(13,61,31,.2);transition:transform .2s, box-shadow .2s;
-    }
-    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(13,61,31,.25)}
-    .btn-link{display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#1a6b35;border:2px solid #1a6b35;border-radius:999px;padding:.5rem .95rem;text-decoration:none}
-    .btn-link:hover{background:#1a6b35;color:#fff;text-decoration:none}
+    .btn{background:#1a6b35;color:#fff;border:0;padding:.58rem .9rem;border-radius:8px;cursor:pointer}
+    .btn:hover{background:#14542b}
     .errbox{margin-bottom:.8rem;background:#fff3f3;border:1px solid #f3c2c2;color:#8b1c1c;padding:.7rem .8rem;border-radius:8px}
     .errbox ul{margin-left:1rem}
-    @media (max-width:980px){
-      body{padding:6.2rem .7rem 1.2rem}
-      nav{padding:.75rem .9rem}
-      .nav-links{display:none}
-      h1{font-size:1.8rem}
-    }
     @media (max-width:760px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <nav>
-    <a class="logo" href="{{ url_for('home') }}">AgriMind<span>X</span></a>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
-      <li><a href="{{ url_for('admin_market_prices') }}">Market Prices</a></li>
-      <li><a href="{{ url_for('admin_activities') }}">Activities</a></li>
-    </ul>
-    <div class="nav-actions">
-      <a class="btn-link" href="{{ url_for('admin_dashboard') }}">Back</a>
-      <a class="btn-link" href="{{ url_for('logout') }}">Log out</a>
-    </div>
-  </nav>
   <div class="wrap">
     <div class="top">
       <div>
+        <a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
         <h1>Add Expert Farmer</h1>
-        <p>Create a new expert profile with login-ready details and consultation slots.</p>
       </div>
     </div>
 
@@ -148,7 +98,7 @@
 
         <div class="actions">
           <button type="submit" class="btn">Save Expert Farmer</button>
-          <a class="btn-link" href="{{ url_for('admin_dashboard') }}">Cancel</a>
+          <a href="{{ url_for('admin_dashboard') }}">Cancel</a>
         </div>
       </form>
     </div>

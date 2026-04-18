@@ -181,54 +181,6 @@ def parse_available_slots(raw_slots):
     return [str(slot).strip() for slot in slots if str(slot).strip()]
 
 
-def extract_weekday_indexes_from_slots(slots):
-    day_to_index = {
-        "mon": 0,
-        "tue": 1,
-        "wed": 2,
-        "thu": 3,
-        "fri": 4,
-        "sat": 5,
-        "sun": 6,
-    }
-    indexes = set()
-
-    for slot in slots or []:
-        token = str(slot).strip().split(" ", 1)[0][:3].lower()
-        if token in day_to_index:
-            indexes.add(day_to_index[token])
-
-    return indexes
-
-
-def resolve_slot_for_booking_date(slots, booking_date):
-    if booking_date is None:
-        return ""
-
-    weekday_to_abbr = {
-        0: "mon",
-        1: "tue",
-        2: "wed",
-        3: "thu",
-        4: "fri",
-        5: "sat",
-        6: "sun",
-    }
-    expected_day = weekday_to_abbr.get(booking_date.weekday())
-    if not expected_day:
-        return ""
-
-    for slot in slots or []:
-        cleaned_slot = str(slot).strip()
-        if not cleaned_slot:
-            continue
-        slot_day = cleaned_slot.split(" ", 1)[0][:3].lower()
-        if slot_day == expected_day:
-            return cleaned_slot
-
-    return ""
-
-
 AUTO_FARMER_PASSWORD = "farmerpasswordab"
 AUTO_EXPERT_PASSWORD = "expert12345"
 
@@ -1749,6 +1701,7 @@ def farmers():
         farmer_phone = request.form.get("farmer_phone", "").strip()
         farmer_email = request.form.get("farmer_email", "").strip()
         preferred_date = request.form.get("preferred_date", "").strip()
+        preferred_time = request.form.get("preferred_time", "").strip()
         question = request.form.get("question", "").strip()
         expert_id = request.form.get("expert_farmer_id", "").strip()
 
@@ -1758,18 +1711,10 @@ def farmers():
             errors.append("Phone number must be at least 10 digits.")
         if farmer_email and ("@" not in farmer_email or len(farmer_email) < 5):
             errors.append("Please enter a valid email address.")
-        preferred_date_obj = None
         if not preferred_date:
             errors.append("Please choose a preferred date.")
-        else:
-            try:
-                preferred_date_obj = datetime.strptime(preferred_date, "%Y-%m-%d").date()
-            except ValueError:
-                errors.append("Please choose a valid preferred date.")
-
-        local_today = (datetime.utcnow() + LOCAL_TIME_OFFSET).date()
-        if preferred_date_obj is not None and preferred_date_obj < local_today:
-            errors.append("Preferred date cannot be in the past.")
+        if not preferred_time:
+            errors.append("Please choose a preferred time.")
         if len(question) < 10:
             errors.append("Please add a short question (min 10 characters).")
 
@@ -1790,15 +1735,8 @@ def farmers():
                 errors.append("Selected expert does not match the selected crop.")
 
         available_slots = parse_available_slots(expert_farmer.available_slots) if expert_farmer else []
-        resolved_preferred_time = ""
-        if expert_farmer is not None and preferred_date_obj is not None:
-            allowed_weekdays = extract_weekday_indexes_from_slots(available_slots)
-            if allowed_weekdays and preferred_date_obj.weekday() not in allowed_weekdays:
-                errors.append("Selected date does not match this expert farmer's available weekdays.")
-            else:
-                resolved_preferred_time = resolve_slot_for_booking_date(available_slots, preferred_date_obj)
-                if not resolved_preferred_time:
-                    errors.append("No consultation slot is configured for the selected expert on this date.")
+        if expert_farmer is not None and preferred_time and preferred_time not in available_slots:
+            errors.append("Please choose one of the three consultation slots shown for the selected expert farmer.")
 
         if not errors:
             booking_email = get_booking_confirmation_recipient(current_user, farmer_email)
@@ -1810,7 +1748,7 @@ def farmers():
                 crop=requested_crop,
                 question=question,
                 preferred_date=preferred_date,
-                preferred_time=resolved_preferred_time,
+                preferred_time=preferred_time,
                 expert_farmer_id=expert_farmer.id,
                 status="Scheduled",
             )
@@ -1948,33 +1886,12 @@ def expert_login():
 @role_required("farmer", "member")
 def farmer_dashboard():
     current_user = get_current_user()
-
-    updated_rows = (FarmerBooking.query
-                    .filter(
-                        FarmerBooking.created_by_username == current_user.username,
-                        FarmerBooking.rating_stars.isnot(None),
-                        FarmerBooking.status != "Completed",
-                    )
-                    .update({FarmerBooking.status: "Completed"}, synchronize_session=False))
-    if updated_rows:
-        db.session.commit()
-
     bookings = (FarmerBooking.query
                 .filter_by(created_by_username=current_user.username)
                 .order_by(FarmerBooking.created_at.desc())
                 .limit(50)
                 .all())
-    predictions = (Prediction.query
-                   .filter_by(owner_username=current_user.username)
-                   .order_by(Prediction.timestamp.desc())
-                   .limit(100)
-                   .all())
-    return render_template(
-        "farmer_dashboard.html",
-        bookings=bookings,
-        predictions=predictions,
-        current_user=current_user,
-    )
+    return render_template("farmer_dashboard.html", bookings=bookings, current_user=current_user)
 
 
 @app.route("/farmer/rate-booking", methods=["POST"])
@@ -2005,7 +1922,6 @@ def farmer_rate_booking():
 
     booking.rating_stars = rating_value
     booking.rating_updated_at = datetime.utcnow()
-    booking.status = "Completed"
     db.session.commit()
 
     if booking.expert_farmer_id:
@@ -2050,6 +1966,10 @@ def expert_dashboard():
 def admin_dashboard():
     current_user = get_current_user()
     ensure_expert_farmer_credentials()
+    predictions = (Prediction.query
+                   .order_by(Prediction.timestamp.desc())
+                   .limit(100)
+                   .all())
     bookings = (FarmerBooking.query
                 .order_by(FarmerBooking.created_at.desc())
                 .limit(100)
@@ -2074,6 +1994,7 @@ def admin_dashboard():
 
     return render_template(
         "admin_dashboard.html",
+        predictions=predictions,
         bookings=bookings,
         experts=experts,
         crop_names=sorted(CROP_DETAILS.keys()),
@@ -2483,19 +2404,21 @@ def api_predict():
 #  HISTORY PAGE  –  GET /history
 # ─────────────────────────────────────────────
 @app.route("/history")
-@role_required("farmer", "member")
+@login_required
 def history():
     current_user = get_current_user()
-    records = (Prediction.query
-               .filter_by(owner_username=current_user.username)
-               .order_by(Prediction.timestamp.desc())
-               .limit(100)
-               .all())
+    is_admin_view = current_user.role == "admin"
+
+    prediction_query = Prediction.query.order_by(Prediction.timestamp.desc())
+    if not is_admin_view:
+        prediction_query = prediction_query.filter_by(owner_username=current_user.username)
+
+    records = prediction_query.limit(100).all()
     return render_template(
         "history.html",
         records=records,
         current_user=current_user,
-        is_admin_view=False,
+        is_admin_view=is_admin_view,
     )
 
 

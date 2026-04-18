@@ -6,35 +6,14 @@
   <title>{{ crop_name }} Details | AgriMindX</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    :root{--green:#1a6b35;--deep:#0d3d1f;--soft:#f4f7f0;--line:#d6e8da;--text:#1a2a1d;--muted:#5a7060;--bright:#2dbb5d}
+    :root{--green:#1a6b35;--deep:#0d3d1f;--soft:#f4f7f0;--line:#d6e8da;--text:#1a2a1d;--muted:#5a7060}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'DM Sans',sans-serif;
-      background:
-        radial-gradient(circle at 0% 0%, #e4f1e8 0%, transparent 42%),
-        radial-gradient(circle at 100% 100%, #d8eadf 0%, transparent 38%),
-        var(--soft);
-      color:var(--text);
-      padding:6.7rem 1rem 2rem;
-    }
+    body{font-family:'DM Sans',sans-serif;background:var(--soft);color:var(--text);padding:2rem 1rem}
     .wrap{max-width:920px;margin:0 auto}
-    nav{
-      position:fixed;top:0;left:0;right:0;z-index:200;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:.9rem 2.5rem;
-      background:rgba(244,247,240,.94);backdrop-filter:blur(16px);
-      border-bottom:1px solid var(--line);
-    }
-    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--deep);text-decoration:none}
-    .logo span{color:var(--bright)}
-    .nav-links{display:flex;gap:1.5rem;list-style:none}
-    .nav-links a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:600}
-    .nav-links a:hover{color:var(--green)}
-    .nav-actions{display:flex;align-items:center;gap:.55rem}
-    .btn-link{display:inline-flex;align-items:center;justify-content:center;background:transparent;color:var(--green);border:2px solid var(--green);border-radius:999px;padding:.5rem .95rem;text-decoration:none;font-weight:700}
-    .btn-link:hover{background:var(--green);color:#fff;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
-    .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:1.3rem 1.4rem;margin-bottom:1rem;box-shadow:0 12px 32px rgba(13,61,31,.08)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+    .back{color:var(--green);text-decoration:none;font-weight:700}
+    .back:hover{text-decoration:underline}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.3rem 1.4rem;margin-bottom:1rem}
     h1{font-family:'Playfair Display',serif;color:var(--deep);font-size:2rem;margin-bottom:.4rem}
     .price{display:inline-block;background:#e7f8ec;color:var(--deep);padding:.45rem .8rem;border-radius:999px;font-weight:700;font-size:.9rem;margin:.5rem 0}
     .season{font-size:.92rem;color:var(--muted);margin-bottom:.8rem}
@@ -42,35 +21,16 @@
     ol{padding-left:1.2rem;display:grid;gap:.55rem}
     li{line-height:1.6;color:#334539}
     .note{font-size:.86rem;color:var(--muted);line-height:1.55}
-    @media (max-width:980px){
-      body{padding:6.2rem .7rem 1.2rem}
-      nav{padding:.75rem .9rem}
-      .nav-links{display:none}
-      h1{font-size:1.8rem}
-    }
   </style>
 </head>
 <body>
-  <nav>
-    <a class="logo" href="{{ url_for('home') }}">AgriMind<span>X</span></a>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('home') }}">Home</a></li>
-      <li><a href="{{ url_for('farmers') }}">Experts</a></li>
-      <li><a href="{{ url_for('history') }}">History</a></li>
-    </ul>
-    <div class="nav-actions">
-      <a class="btn-link" href="{{ url_for('home') }}">Back</a>
-    </div>
-  </nav>
   <div class="wrap">
     <div class="top">
-      <div>
-        <h1>{{ crop_name }}</h1>
-        <div class="season">Crop guidance and live market context for your next planting decision.</div>
-      </div>
+      <a class="back" href="{{ url_for('home') }}">← Back to Home</a>
     </div>
 
     <div class="card">
+      <h1>{{ crop_name }}</h1>
       <div class="price">Market Price (India): {{ market_price.price_range }}</div>
       <div class="season">Source: {{ market_price.source }} | As of: {{ market_price.as_of }}</div>
       <div class="season">Best Season: {{ detail.season }}</div>
