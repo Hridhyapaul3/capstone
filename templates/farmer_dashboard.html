@@ -4,92 +4,411 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Farmer Dashboard | AgriMindX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
+    :root{
+      --bg:#f4f8f2;
+      --bg-accent:#e2f0e6;
+      --ink:#0b3f21;
+      --muted:#567163;
+      --panel:#ffffff;
+      --border:#d6e7d8;
+      --green-1:#0a5b2b;
+      --green-2:#1d8242;
+      --lime:#2fbf62;
+      --shadow:0 18px 44px rgba(13,64,32,.12);
+    }
+
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
-    .wrap{max-width:1080px;margin:0 auto}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
-    h1{color:#0d3d1f}
-    a{color:#1a6b35;text-decoration:none;font-weight:600}
-    a:hover{text-decoration:underline}
-    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
-    table{width:100%;border-collapse:collapse;font-size:.9rem}
-    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
-    td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;white-space:nowrap}
-    .badge{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#e7f8ec;color:#1a6b35;font-weight:700;font-size:.76rem}
+
+    body{
+      font-family:'Manrope',sans-serif;
+      color:var(--ink);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 0% 0%, var(--bg-accent) 0%, transparent 42%),
+        radial-gradient(circle at 100% 100%, #d8eadf 0%, transparent 38%),
+        var(--bg);
+      padding:2.2rem 1rem 2.6rem;
+    }
+
+    .wrap{max-width:1240px;margin:0 auto}
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      background:#d6f0dc;
+      color:#135d2f;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.78rem;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      padding:.54rem .9rem;
+      margin-bottom:1.15rem;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.1fr .95fr;
+      gap:1.4rem;
+      align-items:stretch;
+      margin-bottom:1.3rem;
+    }
+
+    .hero-left h1{
+      font-family:'Fraunces',serif;
+      font-size:clamp(2.3rem,6.4vw,4.4rem);
+      line-height:1.02;
+      letter-spacing:-.03em;
+      margin-bottom:.8rem;
+    }
+
+    .hero-left h1 span{color:var(--lime);text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:8px}
+
+    .hero-copy{max-width:620px;color:var(--muted);font-size:1.05rem;line-height:1.7;margin-bottom:1.35rem}
+
+    .hero-actions{display:flex;flex-wrap:wrap;gap:.8rem}
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:150px;
+      border-radius:999px;
+      padding:.72rem 1.25rem;
+      font-weight:800;
+      font-size:.95rem;
+      text-decoration:none;
+      transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(120deg,var(--green-1),var(--green-2));color:#fff;box-shadow:0 10px 24px rgba(15,88,44,.22)}
+    .btn-secondary{border:2px solid rgba(15,94,47,.72);color:#175f34;background:rgba(255,255,255,.45)}
+
+    .hero-card{
+      position:relative;
+      overflow:hidden;
+      border-radius:30px;
+      padding:1.4rem 1.5rem;
+      background:linear-gradient(125deg,#0b5629 0%, #1a7d41 100%);
+      color:#ecf8f0;
+      box-shadow:var(--shadow);
+      animation:cardIn .55s ease both;
+    }
+
+    .hero-card::before,
+    .hero-card::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      pointer-events:none;
+    }
+
+    .hero-card::before{width:310px;height:310px;right:-130px;top:-90px;background:rgba(74,205,123,.18)}
+    .hero-card::after{width:230px;height:230px;right:22px;bottom:-144px;background:rgba(204,244,218,.13)}
+
+    .hero-card > *{position:relative;z-index:1}
+
+    .hero-label{font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:#b8e0c5;font-weight:700;margin-bottom:.58rem}
+    .hero-title{font-family:'Fraunces',serif;font-size:2.2rem;line-height:1.03;margin-bottom:.34rem}
+    .hero-sub{color:#c8e8d3;font-weight:600;margin-bottom:1.05rem}
+
+    .metric{display:grid;grid-template-columns:90px 1fr 48px;align-items:center;gap:.55rem;font-size:.92rem;color:#d4eddc;margin-bottom:.5rem}
+    .metric-bar{height:7px;border-radius:999px;background:rgba(224,251,233,.2);position:relative;overflow:hidden}
+    .metric-fill{position:absolute;left:0;top:0;bottom:0;border-radius:inherit;background:linear-gradient(90deg,#39db77,#c4f9d8)}
+
+    .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.95rem}
+    .chip{font-size:.78rem;font-weight:700;padding:.3rem .62rem;border-radius:999px;background:rgba(231,252,238,.15);color:#dcf6e4}
+    .chip-strong{background:rgba(66,230,122,.28);color:#f0fff4}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(120px,1fr));
+      gap:.9rem;
+      margin-bottom:1.25rem;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.72);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:.9rem;
+      backdrop-filter:blur(4px);
+    }
+
+    .stat-value{font-family:'Fraunces',serif;font-size:2.2rem;line-height:1;color:#0f4f29}
+    .stat-label{margin-top:.2rem;color:#5f7a6d;font-size:.86rem;font-weight:700}
+
+    .table-shell{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:0 12px 35px rgba(20,72,40,.08);
+      overflow:hidden;
+    }
+
+    .table-head{
+      padding:1rem 1.12rem;
+      border-bottom:1px solid #edf4ef;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.8rem;
+      flex-wrap:wrap;
+    }
+
+    .table-head h2{font-family:'Fraunces',serif;font-size:1.44rem;color:#0f4f29}
+    .table-head p{color:#5f7a6d;font-size:.9rem}
+
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.93rem;min-width:960px}
+    th{background:#175f34;color:#e9f8ee;text-align:left;padding:.74rem .78rem;white-space:nowrap;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+    td{padding:.74rem .78rem;border-bottom:1px solid #edf5f0;white-space:nowrap;vertical-align:middle}
+    tr:hover td{background:#f7fcf8}
+
+    .q-cell{max-width:360px;white-space:normal;color:#345343;line-height:1.45}
+
+    .badge{display:inline-block;padding:.26rem .6rem;border-radius:999px;font-weight:800;font-size:.76rem}
+    .badge-scheduled{background:#e7f8ec;color:#1a6b35}
+    .badge-completed{background:#e6eefc;color:#1a4f9c}
+    .badge-default{background:#eef2f1;color:#385146}
+
     .stars{display:flex;gap:.25rem;align-items:center}
     .star{color:#f2b01e;font-size:1rem;line-height:1}
+
     .rate-form{display:flex;gap:.4rem;align-items:center}
-    .rate-select{padding:.35rem .45rem;border:1px solid #d6e8da;border-radius:8px;font-size:.8rem}
-    .rate-btn{border:none;background:#1a6b35;color:#fff;padding:.36rem .55rem;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer}
-    .muted{color:#5a7060;font-size:.8rem}
-    .empty{text-align:center;padding:2rem;color:#5a7060}
+    .rate-select{padding:.44rem .52rem;border:1px solid #d6e8da;border-radius:10px;font-size:.84rem;background:#fff;color:#113d24}
+    .rate-select:focus{outline:none;border-color:#2a8849;box-shadow:0 0 0 3px rgba(42,136,73,.15)}
+    .rate-btn{border:none;background:linear-gradient(120deg,#196f38,#2e9551);color:#fff;padding:.46rem .76rem;border-radius:10px;font-size:.8rem;font-weight:800;cursor:pointer}
+
+    .empty{
+      text-align:center;
+      padding:2.4rem 1rem;
+      color:#4e695b;
+      font-weight:600;
+      background:linear-gradient(180deg,#f9fcfa,#f2f8f4);
+      border:1px dashed #c7ddca;
+      border-radius:16px;
+      margin:1rem;
+    }
+
+    @keyframes cardIn{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    @media (max-width:1080px){
+      .hero{grid-template-columns:1fr}
+      .hero-copy{max-width:none}
+    }
+
+    @media (max-width:720px){
+      body{padding:1.2rem .7rem 1.4rem}
+      .stats{grid-template-columns:1fr 1fr}
+      .hero-left h1{font-size:2.2rem}
+      .table-head{padding:.85rem .85rem}
+      td,th{padding:.62rem .58rem}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
-      <div>
-        <a href="{{ url_for('home') }}">← Back to Home</a>
-        <h1>Farmer Dashboard</h1>
-        <p style="color:#5a7060;margin-top:.2rem;">Welcome, {{ current_user.username }}. Your expert consultation bookings are listed below.</p>
-      </div>
-    </div>
+    {% set total_bookings = bookings|length %}
+    {% set scheduled_count = bookings|selectattr('status', 'equalto', 'Scheduled')|list|length %}
+    {% set completed_count = bookings|selectattr('status', 'equalto', 'Completed')|list|length %}
+    {% set rated_count = bookings|selectattr('rating_stars')|list|length %}
 
-    <div class="card">
+    <section class="hero">
+      <div class="hero-left">
+        <h1>Farmer <span>Dashboard</span><br/>At a Glance</h1>
+        <p class="hero-copy">Welcome, {{ current_user.username }}. Track consultations, rate expert sessions, and monitor your booking progress in one place.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="{{ url_for('farmers') }}">Book Consultation</a>
+          <a class="btn btn-secondary" href="{{ url_for('home') }}">Back to Home</a>
+        </div>
+      </div>
+
       {% if bookings %}
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Created</th>
-            <th>Crop</th>
-            <th>Expert</th>
-            <th>Schedule</th>
-            <th>Status</th>
-            <th>Rate Experience</th>
-            <th>Question</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for b in bookings %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ b.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ b.crop }}</td>
-            <td>{{ b.expert_farmer.name if b.expert_farmer else 'N/A' }}</td>
-            <td>{{ b.preferred_date }} {{ b.preferred_time }}</td>
-            <td><span class="badge">{{ b.status }}</span></td>
-            <td>
-              {% if b.rating_stars %}
-              <div class="stars" title="{{ b.rating_stars }} stars">
-                {% for _ in range(b.rating_stars) %}<span class="star">★</span>{% endfor %}
-                {% for _ in range(5 - b.rating_stars) %}<span class="star" style="opacity:.25;">★</span>{% endfor %}
-              </div>
-              {% else %}
-              <form class="rate-form" method="POST" action="{{ url_for('farmer_rate_booking') }}">
-                <input type="hidden" name="booking_id" value="{{ b.id }}"/>
-                <select class="rate-select" name="rating_stars" required>
-                  <option value="">Stars</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-                <button class="rate-btn" type="submit">Submit</button>
-              </form>
-              {% endif %}
-            </td>
-            <td>{{ b.question }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      {% set latest = bookings[0] %}
+      <aside class="hero-card">
+        <div class="hero-label">Latest Booking</div>
+        <div class="hero-title">{{ latest.crop }}</div>
+        <div class="hero-sub">{{ latest.preferred_date }} {{ latest.preferred_time }}</div>
+
+        <div class="metric">
+          <span>Status</span>
+          <div class="metric-bar"><div class="metric-fill" style="width:{% if (latest.status or '')|lower == 'completed' %}100{% else %}62{% endif %}%;"></div></div>
+          <strong>{% if (latest.status or '')|lower == 'completed' %}100%{% else %}62%{% endif %}</strong>
+        </div>
+        <div class="metric">
+          <span>Rating</span>
+          <div class="metric-bar"><div class="metric-fill" style="width:{% if latest.rating_stars %}{{ (latest.rating_stars / 5 * 100)|round(0, 'floor') }}{% else %}0{% endif %}%;"></div></div>
+          <strong>{% if latest.rating_stars %}{{ latest.rating_stars }}/5{% else %}N/A{% endif %}</strong>
+        </div>
+        <div class="metric">
+          <span>Expert</span>
+          <div class="metric-bar"><div class="metric-fill" style="width:88%;"></div></div>
+          <strong>Live</strong>
+        </div>
+
+        <div class="chips">
+          <span class="chip chip-strong">{{ latest.status }}</span>
+          <span class="chip">{{ latest.expert_farmer.name if latest.expert_farmer else 'N/A' }}</span>
+          <span class="chip">{{ latest.crop }}</span>
+        </div>
+      </aside>
+      {% else %}
+      <aside class="hero-card">
+        <div class="hero-label">Latest Booking</div>
+        <div class="hero-title">No Bookings Yet</div>
+        <div class="hero-sub">Create your first expert consultation to get started.</div>
+        <div class="chips">
+          <span class="chip chip-strong">Start Now</span>
+          <span class="chip">Track status</span>
+          <span class="chip">Rate experts</span>
+        </div>
+      </aside>
+      {% endif %}
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-value">{{ total_bookings }}</div>
+        <div class="stat-label">Total Bookings</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ completed_count }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ rated_count }}</div>
+        <div class="stat-label">Rated Sessions</div>
+      </div>
+    </section>
+
+    <section class="table-shell">
+      <div class="table-head">
+        <div>
+          <h2>Consultation Bookings</h2>
+          <p>Scheduled: {{ scheduled_count }} | Completed: {{ completed_count }}</p>
+        </div>
+      </div>
+
+      {% if bookings %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Created</th>
+              <th>Crop</th>
+              <th>Expert</th>
+              <th>Schedule</th>
+              <th>Status</th>
+              <th>Rate Experience</th>
+              <th>Question</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ b.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ b.crop }}</td>
+              <td>{{ b.expert_farmer.name if b.expert_farmer else 'N/A' }}</td>
+              <td>{{ b.preferred_date }} {{ b.preferred_time }}</td>
+              {% set status_key = (b.status or '')|lower %}
+              <td>
+                <span class="badge {% if status_key == 'scheduled' %}badge-scheduled{% elif status_key == 'completed' %}badge-completed{% else %}badge-default{% endif %}">
+                  {{ b.status }}
+                </span>
+              </td>
+              <td>
+                {% if b.rating_stars %}
+                <div class="stars" title="{{ b.rating_stars }} stars">
+                  {% for _ in range(b.rating_stars) %}<span class="star">★</span>{% endfor %}
+                  {% for _ in range(5 - b.rating_stars) %}<span class="star" style="opacity:.25;">★</span>{% endfor %}
+                </div>
+                {% else %}
+                <form class="rate-form" method="POST" action="{{ url_for('farmer_rate_booking') }}">
+                  <input type="hidden" name="booking_id" value="{{ b.id }}"/>
+                  <select class="rate-select" name="rating_stars" required>
+                    <option value="">Stars</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                  <button class="rate-btn" type="submit">Submit</button>
+                </form>
+                {% endif %}
+              </td>
+              <td class="q-cell">{{ b.question }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
       <div class="empty">No bookings yet. Create your first consultation schedule.</div>
       {% endif %}
-    </div>
+    </section>
+
+    <section class="table-shell" style="margin-top:1.1rem;">
+      <div class="table-head">
+        <div>
+          <h2>Prediction History</h2>
+          <p>Your latest crop predictions and input values</p>
+        </div>
+      </div>
+
+      {% if predictions %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Time (IST)</th>
+              <th>Crop</th>
+              <th>Confidence</th>
+              <th>N</th>
+              <th>P</th>
+              <th>K</th>
+              <th>Temp</th>
+              <th>Humidity</th>
+              <th>pH</th>
+              <th>Rainfall</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in predictions %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ p.timestamp | localtime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ p.result }}</td>
+              <td>{{ p.confidence }}%</td>
+              <td>{{ p.N }}</td>
+              <td>{{ p.P }}</td>
+              <td>{{ p.K }}</td>
+              <td>{{ p.temperature }}</td>
+              <td>{{ p.humidity }}</td>
+              <td>{{ p.ph }}</td>
+              <td>{{ p.rainfall }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty">No prediction history found yet. Make your first prediction from the home page.</div>
+      {% endif %}
+    </section>
   </div>
 </body>
 </html>

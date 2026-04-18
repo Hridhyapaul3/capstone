@@ -4,19 +4,51 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard | AgriMindX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',sans-serif;background:#f4f7f0;color:#1a2a1d;padding:2rem 1rem}
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, #e4f1e8 0%, transparent 42%),
+        radial-gradient(circle at 100% 100%, #d8eadf 0%, transparent 38%),
+        #f4f8f2;
+      color:#1a2a1d;
+      padding:6.7rem 1rem 2rem;
+    }
     .wrap{max-width:1180px;margin:0 auto}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
-    h1{color:#0d3d1f}
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.9rem 2.5rem;
+      background:rgba(244,247,240,.94);backdrop-filter:blur(16px);
+      border-bottom:1px solid #d6e8da;
+    }
+    .logo{
+      font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;
+      color:#0d3d1f;text-decoration:none;
+    }
+    .logo span{color:#2dbb5d}
+    .nav-links{display:flex;gap:1.4rem;list-style:none}
+    .nav-links a{text-decoration:none;color:#5a7060;font-size:.88rem;font-weight:600}
+    .nav-links a:hover{color:#1a6b35}
+    .nav-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+    .hero{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem}
+    h1{font-family:'Playfair Display',serif;color:#0d3d1f;font-size:2.2rem;line-height:1.1}
     a{color:#1a6b35;text-decoration:none;font-weight:600}
     a:hover{text-decoration:underline}
     .top-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
-    .btn{background:#1a6b35;color:#fff!important;padding:.56rem .95rem;border-radius:8px;text-decoration:none;font-size:.9rem;display:inline-block;font-weight:700}
-    .btn:hover{background:#14542b;text-decoration:none}
+    .btn{
+      background:linear-gradient(135deg,#1a6b35,#0d3d1f);
+      color:#fff!important;padding:.58rem 1.02rem;border-radius:999px;text-decoration:none;
+      font-size:.86rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700;
+      box-shadow:0 8px 20px rgba(13,61,31,.2);transition:transform .2s, box-shadow .2s;
+    }
+    .btn:hover{transform:translateY(-1px);text-decoration:none;box-shadow:0 10px 24px rgba(13,61,31,.25)}
+    .btn-ghost{background:transparent;color:#1a6b35!important;border:2px solid #1a6b35;box-shadow:none}
+    .btn-ghost:hover{background:#1a6b35;color:#fff!important}
     .grid{display:grid;grid-template-columns:1fr;gap:1rem}
-    .card{background:#fff;border:1px solid #d6e8da;border-radius:14px;padding:1rem;overflow:auto}
+    .card{background:#fff;border:1px solid #d6e8da;border-radius:18px;padding:1rem;overflow:auto;box-shadow:0 12px 32px rgba(13,61,31,.08)}
     h2{color:#1a6b35;font-size:1.05rem;margin-bottom:.6rem}
     .card-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem}
     .card-head h2{margin-bottom:0}
@@ -28,8 +60,8 @@
     .status.warn{background:#fff7e6;color:#8a5b00}
     .mini-form{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
     .mini-form input{padding:.55rem .7rem;border:1px solid #d6e8da;border-radius:8px;min-width:260px;flex:1}
-    .mini-btn{background:#1a6b35;color:#fff;border:none;border-radius:8px;padding:.56rem .9rem;font-size:.88rem;font-weight:700;cursor:pointer}
-    .mini-btn:hover{background:#14542b}
+    .mini-btn{background:linear-gradient(135deg,#1a6b35,#0d3d1f);color:#fff;border:none;border-radius:10px;padding:.56rem .9rem;font-size:.88rem;font-weight:700;cursor:pointer;transition:transform .2s}
+    .mini-btn:hover{transform:translateY(-1px)}
     .danger-btn{background:#b42318}
     .danger-btn:hover{background:#8f1a12}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
@@ -41,25 +73,41 @@
     .form-actions{display:flex;gap:.6rem;align-items:center;margin-top:.8rem;flex-wrap:wrap}
     @media (max-width:760px){.form-grid{grid-template-columns:1fr}}
     table{width:100%;border-collapse:collapse;font-size:.9rem}
-    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap}
+    th{background:#1a6b35;color:#fff;text-align:left;padding:.62rem .7rem;white-space:nowrap;text-transform:uppercase;font-size:.78rem;letter-spacing:.04em}
     td{padding:.58rem .7rem;border-bottom:1px solid #edf5f0;white-space:nowrap}
     .delete-btn{background:#c53030;color:#fff;border:none;border-radius:6px;padding:.35rem .65rem;font-size:.8rem;font-weight:700;cursor:pointer;transition:background .2s}
     .delete-btn:hover{background:#9e2a2b}
     .empty{text-align:center;padding:2rem;color:#5a7060}
+    @media (max-width:980px){
+      body{padding:6.2rem .7rem 1.2rem}
+      nav{padding:.75rem .9rem}
+      .nav-links{display:none}
+      h1{font-size:1.9rem}
+    }
   </style>
 </head>
 <body>
+  <nav>
+    <a class="logo" href="{{ url_for('home') }}">AgriMind<span>X</span></a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+      <li><a href="{{ url_for('admin_market_prices') }}">Market Prices</a></li>
+      <li><a href="{{ url_for('admin_activities') }}">Activities</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn-ghost" href="{{ url_for('home') }}">Back</a>
+      <a class="btn" href="{{ url_for('logout') }}">Log out</a>
+    </div>
+  </nav>
   <div class="wrap">
-    <div class="top">
+    <div class="hero">
       <div>
-        <a href="{{ url_for('home') }}">← Back to Home</a>
         <h1>Admin Dashboard</h1>
         <p style="color:#5a7060;margin-top:.2rem;">Monitor expert farmers and farmer consultation bookings.</p>
       </div>
       <div class="top-actions">
         <a class="btn" href="{{ url_for('add_expert') }}">➕ Add Expert Farmers</a>
         <a class="btn" href="{{ url_for('admin_market_prices') }}">💰 Add Market Price</a>
-        <a href="{{ url_for('logout') }}">Log out</a>
       </div>
     </div>
 
@@ -237,50 +285,6 @@
         <div class="empty" style="padding:1rem 0 0 0;text-align:left;">
           Manage crop market price ranges from the admin market price page.
         </div>
-      </div>
-
-      <div class="card">
-        <h2>Prediction History</h2>
-        {% if predictions %}
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Time (IST)</th>
-              <th>User</th>
-              <th>Crop</th>
-              <th>Confidence</th>
-              <th>N</th>
-              <th>P</th>
-              <th>K</th>
-              <th>Temp</th>
-              <th>Humidity</th>
-              <th>pH</th>
-              <th>Rainfall</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in predictions %}
-            <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ p.timestamp | localtime('%Y-%m-%d %H:%M') }}</td>
-              <td>{{ p.owner_username if p.owner_username else 'N/A' }}</td>
-              <td>{{ p.result }}</td>
-              <td>{{ p.confidence }}%</td>
-              <td>{{ p.N }}</td>
-              <td>{{ p.P }}</td>
-              <td>{{ p.K }}</td>
-              <td>{{ p.temperature }}</td>
-              <td>{{ p.humidity }}</td>
-              <td>{{ p.ph }}</td>
-              <td>{{ p.rainfall }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <div class="empty">No prediction history found.</div>
-        {% endif %}
       </div>
 
       <div class="card">
